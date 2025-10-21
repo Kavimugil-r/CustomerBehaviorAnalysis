@@ -192,10 +192,11 @@
     <script src="assets/js/dataHandler.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const registerForm = document.getElementById('registerForm');
-            
-            registerForm.addEventListener('submit', function(e) {
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Re-initialize data to ensure we have the latest from localStorage
+                DataHandler.init();
                 
                 const username = document.getElementById('username').value.trim();
                 const email = document.getElementById('email').value.trim();
@@ -220,24 +221,32 @@
                 }
                 
                 // Validate email format
-                if (!email.endsWith('@customer.com')) {
-                    showError('Email must end with @customer.com');
+                if (!email.endsWith('@customer.com') && !email.endsWith('@admin.com')) {
+                    showError('Email must end with @customer.com or @admin.com');
                     return;
                 }
+                
+                // Determine role based on email domain
+                const role = email.endsWith('@admin.com') ? 'admin' : 'customer';
                 
                 // Create new user
                 const newUser = DataHandler.addUser({
                     username: username,
                     email: email,
-                    password_hash: password // In a real app, this would be properly hashed
+                    password_hash: password, // In a real app, this would be properly hashed
+                    role: role
                 });
                 
                 // Start session
                 Session.start(newUser);
                 
-                // Show success message and redirect
+                // Show success message and redirect based on role
                 alert('Registration successful! Welcome to Shopping ZONE.');
-                window.location.href = 'index.html';
+                if (role === 'admin') {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'user/dashboard.html';
+                }
             });
         });
         

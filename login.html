@@ -186,10 +186,11 @@
     <script src="assets/js/dataHandler.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm');
-            
-            loginForm.addEventListener('submit', function(e) {
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Re-initialize data to ensure we have the latest from localStorage
+                DataHandler.init();
                 
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value.trim();
@@ -204,14 +205,23 @@
                 const user = DataHandler.getUserByUsername(username);
                 
                 if (user && password === user.password_hash) { // Check against stored password
+                    // Ensure user has proper role
+                    const userWithRole = {...user};
+                    if (!userWithRole.role) {
+                        // Default role for existing users
+                        userWithRole.role = user.email && user.email.endsWith('@admin.com') ? 'admin' : 'customer';
+                    }
+                    
                     // Start session
-                    console.log('Starting session for user:', user);
-                    const sessionResult = Session.start(user);
-                    console.log('Session start result:', sessionResult);
+                    const sessionResult = Session.start(userWithRole);
                     
                     if (sessionResult) {
-                        // Redirect to home page
-                        window.location.href = 'index.html';
+                        // Redirect based on role
+                        if (userWithRole.role === 'admin') {
+                            window.location.href = 'admin/dashboard.html';
+                        } else {
+                            window.location.href = 'user/dashboard.html';
+                        }
                     } else {
                         showError('Failed to start session. Please try again.');
                     }

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+        
+        .card-content {
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+        }
+        
+        .loyalty-info {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .loyalty-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .loyalty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .loyalty-gold {
+            background-color: #FFD700;
+            color: #333;
+        }
+        
+        .loyalty-silver {
+            background-color: #C0C0C0;
+            color: #333;
+        }
+        
+        .loyalty-bronze {
+            background-color: #CD7F32;
+            color: white;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 5px;
+        }
+        
+        .order-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .order-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .order-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .order-amount {
+            font-weight: bold;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .cart-link {
+            position: relative;
+            color: #f7fff7;
+            text-decoration: none;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../menu.html">Products</a>
+            <a href="../cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="../assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="dashboard-container">
+        <h2 class="dashboard-header">User Dashboard</h2>
+
+        <div class="dashboard-grid">
+            <!-- Profile Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Profile</span>
+                    <i class="fas fa-user card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Username</span>
+                        <span class="stat-value" id="userUsername">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Email</span>
+                        <span class="stat-value" id="userEmail">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Member Since</span>
+                        <span class="stat-value" id="userMemberSince">-</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <a href="profile.html" class="btn">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loyalty Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Loyalty Program</span>
+                    <i class="fas fa-award card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="loyalty-info">
+                        <div class="loyalty-title">Your Loyalty Status</div>
+                        <div class="loyalty-badge loyalty-bronze" id="loyaltyBadge">Bronze</div>
+                        <div style="margin-top: 10px;">
+                            Spend <span id="amountToNextLevel">$200</span> more to reach 
+                            <span id="nextLevel">Silver</span> level
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="loyaltyProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Spent</span>
+                        <span class="stat-value" id="totalSpent">$0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Orders Placed</span>
+                        <span class="stat-value" id="ordersPlaced">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Orders Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Recent Orders</span>
+                    <i class="fas fa-shopping-bag card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="order-history" id="orderHistory">
+                        <!-- Order items will be populated by JavaScript -->
+                        <div style="text-align: center; padding: 20px; color: #666;">
+                            No orders yet. <a href="../menu.html">Start shopping!</a>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <a href="orders.html" class="btn">
+                            <i class="fas fa-list"></i> View All Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/appData.js"></script>
+    <script src="../assets/js/session.js"></script>
+    <script src="../assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const session = Session.get();
+            if (!session || !session.logged_in) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            updateCartCount();
+            loadDashboardData();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'orders.html';
+                ordersLink.textContent = 'Orders';
+                // Make sure we don't add duplicate links
+                if (!document.querySelector('a[href="orders.html"]')) {
+                    navLinks.appendChild(ordersLink);
+                }
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="../login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="../register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = '../index.html';
+        }
+        
+        // Load dashboard data
+        function loadDashboardData() {
+            const session = Session.get();
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Update profile info
+            document.getElementById('userUsername').textContent = session.username;
+            document.getElementById('userEmail').textContent = session.email;
+            
+            // Format member since date
+            const user = DataHandler.getUserByUsername(session.username);
+            if (user && user.created_at) {
+                const createdDate = new Date(user.created_at);
+                document.getElementById('userMemberSince').textContent = createdDate.toLocaleDateString();
+            } else {
+                document.getElementById('userMemberSince').textContent = 'Unknown';
+            }
+            
+            // Update loyalty info
+            updateLoyaltyInfo(session.user_id);
+            
+            // Update order history
+            updateOrderHistory(session.user_id);
+        }
+        
+        // Update loyalty info
+        function updateLoyaltyInfo(userId) {
+            // Get user orders
+            const userOrders = DataHandler.getUserOrders(userId);
+            
+            // Calculate total spent
+            const totalSpent = userOrders.reduce((total, order) => total + order.total_amount, 0);
+            document.getElementById('totalSpent').textContent = '₹' + totalSpent.toFixed(2);
+            
+            // Calculate orders placed
+            document.getElementById('ordersPlaced').textContent = userOrders.length;
+            
+            // Determine loyalty level
+            let loyaltyLevel = 'Bronze';
+            let loyaltyClass = 'loyalty-bronze';
+            let nextLevel = 'Silver';
+            let amountToNextLevel = 200 - totalSpent;
+            let progressPercent = (totalSpent / 200) * 100;
+            
+            if (totalSpent >= 500) {
+                loyaltyLevel = 'Gold';
+                loyaltyClass = 'loyalty-gold';
+                nextLevel = 'Maximum';
+                amountToNextLevel = 0;
+                progressPercent = 100;
+            } else if (totalSpent >= 200) {
+                loyaltyLevel = 'Silver';
+                loyaltyClass = 'loyalty-silver';
+                nextLevel = 'Gold';
+                amountToNextLevel = 500 - totalSpent;
+                progressPercent = ((totalSpent - 200) / 300) * 100;
+            }
+            
+            // Update UI
+            document.getElementById('loyaltyBadge').textContent = loyaltyLevel;
+            document.getElementById('loyaltyBadge').className = 'loyalty-badge ' + loyaltyClass;
+            document.getElementById('nextLevel').textContent = nextLevel;
+            document.getElementById('amountToNextLevel').textContent = '₹' + Math.max(0, amountToNextLevel).toFixed(2);
+            document.getElementById('loyaltyProgress').style.width = progressPercent + '%';
+        }
+        
+        // Update order history
+        function updateOrderHistory(userId) {
+            const userOrders = DataHandler.getUserOrders(userId);
+            
+            // Sort orders by date (newest first)
+            userOrders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+            
+            // Take only the 5 most recent orders
+            const recentOrders = userOrders.slice(0, 5);
+            
+            const orderHistory = document.getElementById('orderHistory');
+            
+            if (recentOrders.length === 0) {
+                orderHistory.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        No orders yet. <a href="../menu.html">Start shopping!</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            orderHistory.innerHTML = '';
+            
+            recentOrders.forEach(order => {
+                const orderDate = new Date(order.order_time);
+                const formattedDate = orderDate.toLocaleDateString() + ' ' + orderDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Create order header
+                const orderItem = document.createElement('div');
+                orderItem.className = 'order-item';
+                orderItem.innerHTML = `
+                    <div>
+                        <span class="order-id">Order #${order.order_id}</span>
+                        <span class="order-date">${formattedDate}</span>
+                    </div>
+                    <div>
+                        Items: ${order.items.length} | 
+                        <span class="order-amount">₹${order.total_amount.toFixed(2)}</span>
+                    </div>
+                `;
+                
+                // Add product details
+                const productsList = document.createElement('div');
+                productsList.style.marginTop = '10px';
+                productsList.style.paddingLeft = '15px';
+                productsList.style.borderLeft = '2px solid #eee';
+                
+                order.items.forEach(item => {
+                    const product = DataHandler.getProductItemById(item.product_id);
+                    if (product) {
+                        const starRating = generateStarRating(product.rating || 0);
+                        const productItem = document.createElement('div');
+                        productItem.style.marginBottom = '8px';
+                        productItem.style.fontSize = '0.9rem';
+                        productItem.innerHTML = `
+                            <div><strong>${product.name}</strong> (${item.quantity}x)</div>
+                            <div class="product-rating" style="margin-top: 3px;">${starRating}</div>
+                            <div>Price: ₹${(item.item_price * item.quantity).toFixed(2)}</div>
+                        `;
+                        productsList.appendChild(productItem);
+                    }
+                });
+                
+                orderItem.appendChild(productsList);
+                orderHistory.appendChild(orderItem);
+            });
+        }
+        
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Add full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add half star if needed
+            if (hasHalfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+            }
+            
+            // Add empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add rating number
+            starsHTML += ` <span style="color: #666; font-size: 0.8rem;">${rating.toFixed(1)}</span>`;
+            
+            return starsHTML;
+        }
+    </script>
+</body>
+</html>

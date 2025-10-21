@@ -19,10 +19,14 @@ const Session = {
       return null;
     }
     
+    // Ensure role is properly set
+    const role = userData.role || (userData.email && userData.email.endsWith('@admin.com') ? 'admin' : 'customer');
+    
     const sessionData = {
       user_id: userData.user_id,
       username: userData.username,
       email: userData.email || '',
+      role: role,
       logged_in: true,
       login_time: new Date().toISOString()
     };
@@ -60,20 +64,10 @@ const Session = {
     try {
       const session = this.get();
       // Check multiple conditions for a valid session
-      const isLoggedIn = session && 
-                        session.logged_in === true && 
-                        session.username && 
-                        session.user_id;
-      
-      console.log('Session validation result:', {
-        hasSession: !!session,
-        loggedInFlag: session ? session.logged_in : null,
-        hasUsername: session ? !!session.username : null,
-        hasUserId: session ? !!session.user_id : null,
-        finalResult: isLoggedIn
-      });
-      
-      return isLoggedIn;
+      return session && 
+             session.logged_in === true && 
+             session.username && 
+             session.user_id;
     } catch (error) {
       console.error('Error checking login status:', error);
       return false;

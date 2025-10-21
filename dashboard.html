@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=index.html">
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>If you are not redirected automatically, follow this <a href="index.html">link to the homepage</a>.</p>
+    <script src="assets/js/session.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const session = Session.get();
+            if (session && session.logged_in) {
+                if (session.role === 'admin') {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'user/dashboard.html';
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

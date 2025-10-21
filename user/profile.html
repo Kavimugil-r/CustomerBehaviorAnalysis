@@ -430,8 +430,8 @@
             if (session && session.logged_in) {
                 userInfo.innerHTML = `
                     <span>Welcome, ${session.username}!</span>
-                    <a href="profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-user"></i> Profile
+                    <a href="dashboard.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -442,7 +442,10 @@
                 const ordersLink = document.createElement('a');
                 ordersLink.href = 'orders.html';
                 ordersLink.textContent = 'Orders';
-                navLinks.appendChild(ordersLink);
+                // Make sure we don't add duplicate links
+                if (!document.querySelector('a[href="orders.html"]')) {
+                    navLinks.appendChild(ordersLink);
+                }
             } else {
                 userInfo.innerHTML = `
                     <div class="login-register">

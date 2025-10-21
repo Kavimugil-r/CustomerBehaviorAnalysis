@@ -3,31 +3,69 @@ const DataHandler = {
   // Initialize cart from localStorage
   init: function() {
     try {
+      // Initialize with default data if localStorage is empty
       const savedCart = localStorage.getItem('shopping_cart');
       if (savedCart) {
-        appData.cart = JSON.parse(savedCart);
-        console.log('Cart loaded from localStorage');
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart)) {
+          appData.cart = parsedCart;
+          console.log('Cart loaded from localStorage');
+        }
       }
       
       // Load orders from localStorage
       const savedOrders = localStorage.getItem('shopping_orders');
       if (savedOrders) {
-        appData.orders = JSON.parse(savedOrders);
-        console.log('Orders loaded from localStorage');
+        const parsedOrders = JSON.parse(savedOrders);
+        if (Array.isArray(parsedOrders)) {
+          appData.orders = parsedOrders;
+          console.log('Orders loaded from localStorage');
+        }
       }
       
       // Load users from localStorage
       const savedUsers = localStorage.getItem('shopping_users');
       if (savedUsers) {
-        appData.users = JSON.parse(savedUsers);
-        console.log('Users loaded from localStorage');
+        const parsedUsers = JSON.parse(savedUsers);
+        if (Array.isArray(parsedUsers)) {
+          appData.users = parsedUsers;
+          console.log('Users loaded from localStorage');
+          
+          // Ensure all users have roles and proper data structure
+          appData.users.forEach(user => {
+            // Ensure user has all required fields
+            if (user.user_id === undefined) {
+              user.user_id = this.generateUserId();
+            }
+            if (user.created_at === undefined) {
+              user.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            }
+            
+            // Assign role based on email domain for existing users
+            if (!user.role) {
+              user.role = user.email && user.email.endsWith('@admin.com') ? 'admin' : 'customer';
+            }
+          });
+        }
+      } else {
+        // Save initial data to localStorage if not present
+        this.saveUsers();
+        this.saveCart();
+        this.saveOrders();
       }
     } catch (error) {
       console.error('Error loading data from localStorage:', error);
       // Reset to empty arrays if there's an error
       appData.cart = [];
       appData.orders = [];
+      appData.users = [];
     }
+  },
+  
+  // Generate unique user ID
+  generateUserId: function() {
+    return appData.users.length > 0 ? 
+      Math.max(...appData.users.map(user => user.user_id)) + 1 : 1;
   },
   
   // Save cart to localStorage
@@ -62,6 +100,9 @@ const DataHandler = {
   
   // Get all product items
   getProductItems: function(available_only = true) {
+    // Ensure data is initialized
+    this.init();
+    
     if (available_only) {
       return appData.product_items.filter(item => item.is_available);
     }
@@ -70,45 +111,46 @@ const DataHandler = {
   
   // Get product item by ID
   getProductItemById: function(product_id) {
+    // Ensure data is initialized
+    this.init();
+    
     return appData.product_items.find(item => item.product_id == product_id);
   },
   
   // Get user by username
   getUserByUsername: function(username) {
-    console.log('Looking for user with username:', username);
-    console.log('Available users:', appData.users);
+    // Ensure data is initialized
+    this.init();
     
     if (!username) {
-      console.error('No username provided to getUserByUsername');
       return null;
     }
     
-    const user = appData.users.find(user => {
-      const match = user.username === username;
-      console.log(`Checking user ${user.username} against ${username}: ${match}`);
-      return match;
-    });
-    
-    console.log('Found user:', user);
-    return user || null;
+    return appData.users.find(user => user.username === username) || null;
   },
   
   // Get user by email
   getUserByEmail: function(email) {
+    // Ensure data is initialized
+    this.init();
+    
     return appData.users.find(user => user.email === email);
   },
   
   // Add new user
   addUser: function(userData) {
+    // Ensure data is initialized
+    this.init();
+    
     // Generate new user ID
-    const newId = appData.users.length > 0 ? 
-      Math.max(...appData.users.map(user => user.user_id)) + 1 : 1;
+    const newId = this.generateUserId();
       
     const newUser = {
       user_id: newId,
       username: userData.username,
       email: userData.email,
       password_hash: userData.password_hash,
+      role: userData.role || (userData.email && userData.email.endsWith('@admin.com') ? 'admin' : 'customer'),
       created_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
     
@@ -122,6 +164,15 @@ const DataHandler = {
   
   // Add item to cart
   addToCart: function(user_id, product_id, quantity = 1) {
+    // Ensure data is initialized
+    this.init();
+    
+    // Validate inputs
+    if (!user_id || !product_id) {
+      console.error('Invalid user_id or product_id');
+      return false;
+    }
+    
     // Check if item already exists in cart
     const existingItemIndex = appData.cart.findIndex(item => 
       item.user_id == user_id && item.product_id == product_id);
@@ -150,6 +201,9 @@ const DataHandler = {
   
   // Get cart items for user
   getCartItems: function(user_id) {
+    // Ensure data is initialized
+    this.init();
+    
     const cartItems = appData.cart.filter(item => item.user_id == user_id);
     
     // Attach product item details to cart items
@@ -164,6 +218,9 @@ const DataHandler = {
   
   // Remove item from cart
   removeFromCart: function(cart_id, user_id) {
+    // Ensure data is initialized
+    this.init();
+    
     const index = appData.cart.findIndex(item => 
       item.cart_id == cart_id && item.user_id == user_id);
     
@@ -178,6 +235,9 @@ const DataHandler = {
   
   // Update cart item quantity
   updateCartQuantity: function(cart_id, user_id, quantity) {
+    // Ensure data is initialized
+    this.init();
+    
     const index = appData.cart.findIndex(item => 
       item.cart_id == cart_id && item.user_id == user_id);
     
@@ -198,6 +258,9 @@ const DataHandler = {
   
   // Get cart total for user
   getCartTotal: function(user_id) {
+    // Ensure data is initialized
+    this.init();
+    
     const cartItems = this.getCartItems(user_id);
     return cartItems.reduce((total, item) => {
       return total + (item.price * item.quantity);
@@ -206,6 +269,9 @@ const DataHandler = {
   
   // Create order
   createOrder: function(user_id) {
+    // Ensure data is initialized
+    this.init();
+    
     const cartItems = this.getCartItems(user_id);
     const total = this.getCartTotal(user_id);
     
@@ -245,16 +311,25 @@ const DataHandler = {
   
   // Get user orders
   getUserOrders: function(user_id) {
+    // Ensure data is initialized
+    this.init();
+    
     return appData.orders.filter(order => order.user_id == user_id);
   },
   
   // Get order by ID
   getOrderById: function(order_id) {
+    // Ensure data is initialized
+    this.init();
+    
     return appData.orders.find(order => order.order_id == order_id);
   },
   
   // Update user profile
   updateUserProfile: function(user_id, userData) {
+    // Ensure data is initialized
+    this.init();
+    
     const userIndex = appData.users.findIndex(user => user.user_id == user_id);
     
     if (userIndex !== -1) {

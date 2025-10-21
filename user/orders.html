@@ -295,8 +295,8 @@
             if (session && session.logged_in) {
                 userInfo.innerHTML = `
                     <span>Welcome, ${session.username}!</span>
-                    <a href="profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-user"></i> Profile
+                    <a href="dashboard.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -307,7 +307,10 @@
                 const ordersLink = document.createElement('a');
                 ordersLink.href = 'orders.html';
                 ordersLink.textContent = 'Orders';
-                navLinks.appendChild(ordersLink);
+                // Make sure we don't add duplicate links
+                if (!document.querySelector('a[href="orders.html"]')) {
+                    navLinks.appendChild(ordersLink);
+                }
             } else {
                 userInfo.innerHTML = `
                     <div class="login-register">
@@ -389,10 +392,14 @@
                 displayItems.forEach(item => {
                     const productItem = DataHandler.getProductItemById(item.product_id);
                     if (productItem) {
+                        const starRating = generateStarRating(productItem.rating || 0);
                         ordersHTML += `
                             <div class="order-item">
-                                <span>${productItem.name} × ${item.quantity}</span>
-                                <span>$${(item.item_price * item.quantity).toFixed(2)}</span>
+                                <div>
+                                    <div>${productItem.name} × ${item.quantity}</div>
+                                    <div class="product-rating" style="margin-top: 3px; font-size: 0.8rem;">${starRating}</div>
+                                </div>
+                                <span>₹${(item.item_price * item.quantity).toFixed(2)}</span>
                             </div>
                         `;
                     }
@@ -411,7 +418,7 @@
                 ordersHTML += `
                         </div>
                         <div class="order-total">
-                            Total: $${order.total_amount.toFixed(2)} (${totalItems} item${totalItems > 1 ? 's' : ''})
+                            Total: ₹${order.total_amount.toFixed(2)} (${totalItems} item${totalItems > 1 ? 's' : ''})
                         </div>
                         <div class="order-time">
                             ${orderTime}
@@ -422,6 +429,35 @@
             
             ordersHTML += '</div>';
             ordersContent.innerHTML = ordersHTML;
+        }
+        
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Add full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add half star if needed
+            if (hasHalfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+            }
+            
+            // Add empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add rating number
+            starsHTML += ` <span style="color: #666; font-size: 0.8rem;">${rating.toFixed(1)}</span>`;
+            
+            return starsHTML;
         }
     </script>
 </body>

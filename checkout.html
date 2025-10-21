@@ -87,6 +87,11 @@
             flex-grow: 1;
         }
         
+        .product-rating {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
         .order-item-name {
             font-weight: bold;
             margin-bottom: 5px;
@@ -356,8 +361,8 @@
             if (session && session.logged_in) {
                 userInfo.innerHTML = `
                     <span>Welcome, ${session.username}!</span>
-                    <a href="user/profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-user"></i> Profile
+                    <a href="${session.role === 'admin' ? 'admin/dashboard.html' : 'user/dashboard.html'}" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
                     </a>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -368,7 +373,10 @@
                 const ordersLink = document.createElement('a');
                 ordersLink.href = 'user/orders.html';
                 ordersLink.textContent = 'Orders';
-                navLinks.appendChild(ordersLink);
+                // Make sure we don't add duplicate links
+                if (!document.querySelector('a[href="user/orders.html"]')) {
+                    navLinks.appendChild(ordersLink);
+                }
             } else {
                 userInfo.innerHTML = `
                     <div class="login-register">
@@ -417,13 +425,15 @@
             `;
             
             cartItems.forEach(item => {
+                const starRating = generateStarRating(item.rating || 0);
                 orderHTML += `
                     <div class="order-item">
                         <img src="${item.image_url}" class="order-item-image">
                         <div class="order-item-details">
                             <h4 class="order-item-name">${item.name}</h4>
-                            <p class="order-item-price">$${item.price.toFixed(2)} × ${item.quantity}</p>
-                            <p>Subtotal: $${(item.price * item.quantity).toFixed(2)}</p>
+                            <div class="product-rating">${starRating}</div>
+                            <p class="order-item-price">₹${item.price.toFixed(2)} × ${item.quantity}</p>
+                            <p>Subtotal: ₹${(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                     </div>
                 `;
@@ -437,7 +447,7 @@
                         </div>
                         <div class="summary-row total-row">
                             <span>Total:</span>
-                            <span>$${total.toFixed(2)}</span>
+                            <span>₹${total.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
@@ -488,9 +498,16 @@
             // In a real application, you would process the payment here
             // For this demo, we'll just create the order
             
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
             const order = DataHandler.createOrder(session.user_id);
             
             if (order) {
+                // Save the updated data
+                DataHandler.saveOrders();
+                DataHandler.saveCart();
+                
                 // Redirect to order confirmation page
                 window.location.href = `order_confirmation.html?order_id=${order.order_id}`;
             } else {
@@ -511,6 +528,35 @@
             setTimeout(() => {
                 messageContainer.innerHTML = '';
             }, 5000);
+        }
+        
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Add full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add half star if needed
+            if (hasHalfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+            }
+            
+            // Add empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add rating number
+            starsHTML += ` <span style="color: #666; font-size: 0.9rem;">${rating.toFixed(1)}</span>`;
+            
+            return starsHTML;
         }
     </script>
 </body>

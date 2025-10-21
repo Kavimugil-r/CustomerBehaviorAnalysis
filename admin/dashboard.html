@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+        
+        .card-content {
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 10px 0;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: #007bff;
+            border-radius: 3px 3px 0 0;
+            position: relative;
+        }
+        
+        .chart-bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .user-table th, .user-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .loyalty-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .loyalty-gold {
+            background-color: #FFD700;
+            color: #333;
+        }
+        
+        .loyalty-silver {
+            background-color: #C0C0C0;
+            color: #333;
+        }
+        
+        .loyalty-bronze {
+            background-color: #CD7F32;
+            color: white;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+    </style>
+    
+    <!-- Popup Modal Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn-modal {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary-modal {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary-modal {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-modal:hover {
+            opacity: 0.9;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .detail-value {
+            color: #666;
+        }
+        
+        .order-list {
+            margin-top: 15px;
+        }
+        
+        .order-item-popup {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <!-- Admin-specific navigation -->
+            <a href="#" onclick="refreshData(event); return false;">Refresh Data</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="../assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="dashboard-container">
+        <h2 class="dashboard-header">Admin Dashboard</h2>
+
+        <div class="dashboard-grid">
+            <!-- Analytics Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Analytics Overview</span>
+                    <i class="fas fa-chart-line card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Total Users</span>
+                        <span class="stat-value" id="totalUsers">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Orders</span>
+                        <span class="stat-value" id="totalOrders">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Revenue</span>
+                        <span class="stat-value" id="totalRevenue">₹0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Products Sold</span>
+                        <span class="stat-value" id="productsSold">0</span>
+                    </div>
+                </div>
+                <div class="chart-container" id="salesChart">
+                    <!-- Chart will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- User Segmentation Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">User Segmentation</span>
+                    <i class="fas fa-users card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Orders</th>
+                                <th>Items</th>
+                                <th>Total Spent</th>
+                                <th>Loyalty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userSegmentationTable">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Product Overview Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Product Overview</span>
+                    <i class="fas fa-box card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Total Products</span>
+                        <span class="stat-value" id="totalProducts">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Active Products</span>
+                        <span class="stat-value" id="activeProducts">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Avg. Product Rating</span>
+                        <span class="stat-value" id="avgProductRating">0.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Highest Rated Product</span>
+                        <span class="stat-value" id="topProduct">-</span>
+                    </div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <button class="btn btn-primary" onclick="showProductAlert()">
+                            <i class="fas fa-info-circle"></i> Product Information
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reports Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Reports</span>
+                    <i class="fas fa-file-alt card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Sales Report</span>
+                        <span class="stat-value">Monthly</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>User Activity</span>
+                        <span class="stat-value">Weekly</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Product Performance</span>
+                        <span class="stat-value">Daily</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Inventory Status</span>
+                        <span class="stat-value">Real-time</span>
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-primary" onclick="generateReport('sales')">
+                        <i class="fas fa-download"></i> Sales Report
+                    </button>
+                    <button class="btn btn-success" onclick="generateReport('user')">
+                        <i class="fas fa-download"></i> User Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/appData.js"></script>
+    <script src="../assets/js/session.js"></script>
+    <script src="../assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in and is admin
+            const session = Session.get();
+            if (!session || session.role !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            loadDashboardData();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username} (Admin)!</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="../login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="../register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Refresh all dashboard data
+        function refreshData() {
+            // Confirm refresh action
+            const confirmRefresh = confirm('Are you sure you want to refresh all dashboard data? This will reload the latest information from storage.');
+            if (!confirmRefresh) {
+                return;
+            }
+            
+            // Show loading message
+            const refreshLink = document.querySelector('a[onclick*="refreshData"]');
+            const originalText = refreshLink.innerHTML;
+            refreshLink.innerHTML = '<i class="fas fa-sync fa-spin"></i> Refreshing...';
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Reload dashboard data
+            loadDashboardData();
+            
+            // Show success message
+            setTimeout(function() {
+                refreshLink.innerHTML = originalText;
+                // Show success popup
+                const content = '<p>Dashboard data has been successfully refreshed with the latest information from storage.</p>';
+                showModal('Data Refreshed', content);
+            }, 500);
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            window.location.href = '../index.html';
+        }
+        
+        // Load dashboard data
+        function loadDashboardData() {
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Add a small delay to ensure data is fully loaded
+            setTimeout(function() {
+                // Update analytics
+                updateAnalytics();
+                
+                // Update user segmentation
+                updateUserSegmentation();
+                
+                // Update product overview
+                updateProductOverview();
+                
+                // Update sales chart
+                updateSalesChart();
+            }, 100);
+        }
+        
+        // Update analytics
+        function updateAnalytics() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Total users
+            const totalUsers = appData.users.length;
+            document.getElementById('totalUsers').textContent = totalUsers;
+            
+            // Total orders
+            const totalOrders = appData.orders.length;
+            document.getElementById('totalOrders').textContent = totalOrders;
+            
+            // Total revenue
+            const totalRevenue = appData.orders.reduce((total, order) => total + (order.total_amount || 0), 0);
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
+            
+            // Products sold
+            const productsSold = appData.orders.reduce((total, order) => {
+                return total + order.items.reduce((itemTotal, item) => itemTotal + (item.quantity || 0), 0);
+            }, 0);
+            document.getElementById('productsSold').textContent = productsSold;
+            
+            // Average order value
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            
+            // Check if average order element already exists to avoid duplicates
+            let avgOrderElement = document.getElementById('avgOrderValue');
+            if (!avgOrderElement) {
+                avgOrderElement = document.createElement('div');
+                avgOrderElement.id = 'avgOrderValue';
+                avgOrderElement.className = 'stat-item';
+            }
+            avgOrderElement.innerHTML = `
+                <span>Average Order Value</span>
+                <span class="stat-value">₹${avgOrderValue.toFixed(2)}</span>
+            `;
+            document.querySelector('#totalRevenue').parentNode.appendChild(avgOrderElement);
+            
+            // Add button for detailed analytics
+            const detailButton = document.createElement('div');
+            detailButton.style.marginTop = '15px';
+            detailButton.style.textAlign = 'center';
+            detailButton.innerHTML = `
+                <button class="btn btn-primary" onclick="showAnalyticsDetails()">
+                    <i class="fas fa-chart-bar"></i> Detailed Analytics
+                </button>
+            `;
+            document.querySelector('#productsSold').parentNode.appendChild(detailButton);
+        }
+        
+        // Update user segmentation
+        function updateUserSegmentation() {
+            const tableBody = document.getElementById('userSegmentationTable');
+            tableBody.innerHTML = '';
+            
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Sort users by total spent (descending)
+            const usersWithStats = appData.users.map(user => {
+                // Get user orders
+                const userOrders = appData.orders.filter(order => order.user_id === user.user_id);
+                const orderCount = userOrders.length;
+                
+                // Calculate total spent by user
+                const totalSpent = userOrders.reduce((total, order) => total + (order.total_amount || 0), 0);
+                
+                // Calculate total items purchased
+                const totalItems = userOrders.reduce((total, order) => {
+                    return total + order.items.reduce((itemTotal, item) => itemTotal + (item.quantity || 0), 0);
+                }, 0);
+                
+                // Determine loyalty level based on total spent
+                let loyaltyLevel = 'Bronze';
+                let loyaltyClass = 'loyalty-bronze';
+                
+                if (totalSpent >= 5000) {  // ₹5000 for Gold level
+                    loyaltyLevel = 'Gold';
+                    loyaltyClass = 'loyalty-gold';
+                } else if (totalSpent >= 2000) {  // ₹2000 for Silver level
+                    loyaltyLevel = 'Silver';
+                    loyaltyClass = 'loyalty-silver';
+                }
+                
+                return {
+                    ...user,
+                    orderCount,
+                    totalSpent,
+                    totalItems,
+                    loyaltyLevel,
+                    loyaltyClass
+                };
+            });
+            
+            // Sort by total spent descending
+            usersWithStats.sort((a, b) => b.totalSpent - a.totalSpent);
+            
+            // Add header row for better orientation
+            if (usersWithStats.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="6" style="text-align: center; padding: 20px; color: #666;">
+                        No user data available. Please ensure users have placed orders.
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            usersWithStats.forEach((user, index) => {
+                const row = document.createElement('tr');
+                // Add alternating row colors for better orientation
+                if (index % 2 === 0) {
+                    row.style.backgroundColor = '#f9f9f9';
+                }
+                
+                // Make row clickable to show user details
+                row.style.cursor = 'pointer';
+                row.onclick = function() {
+                    showUserDetails(user, usersWithStats);
+                };
+                
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.orderCount}</td>
+                    <td>${user.totalItems}</td>
+                    <td>₹${user.totalSpent.toFixed(2)}</td>
+                    <td><span class="loyalty-badge ${user.loyaltyClass}">${user.loyaltyLevel}</span></td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Update product overview
+        function updateProductOverview() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Total products
+            const totalProducts = appData.product_items.length;
+            document.getElementById('totalProducts').textContent = totalProducts;
+            
+            // Active products
+            const activeProducts = appData.product_items.filter(item => item.is_available).length;
+            document.getElementById('activeProducts').textContent = activeProducts;
+            
+            // Inactive products
+            const inactiveProducts = totalProducts - activeProducts;
+            
+            // Average product rating
+            const totalRating = appData.product_items.reduce((total, item) => total + (item.rating || 0), 0);
+            const avgRating = totalProducts > 0 ? totalRating / totalProducts : 0;
+            document.getElementById('avgProductRating').textContent = avgRating.toFixed(1);
+            
+            // Highest rated product
+            if (totalProducts > 0) {
+                const topProduct = appData.product_items.reduce((highest, current) => 
+                    (current.rating || 0) > (highest.rating || 0) ? current : highest);
+                document.getElementById('topProduct').textContent = topProduct.name;
+            } else {
+                document.getElementById('topProduct').textContent = '-';
+            }
+            
+            // Add inactive products count for better orientation
+            const inactiveElement = document.createElement('div');
+            inactiveElement.className = 'stat-item';
+            inactiveElement.innerHTML = `
+                <span>Inactive Products</span>
+                <span class="stat-value">${inactiveProducts}</span>
+            `;
+            document.querySelector('#activeProducts').parentNode.appendChild(inactiveElement);
+            
+            // Add button for detailed product analysis
+            const detailButton = document.createElement('div');
+            detailButton.style.marginTop = '15px';
+            detailButton.style.textAlign = 'center';
+            detailButton.innerHTML = `
+                <button class="btn btn-primary" onclick="showProductDetails()" style="margin-right: 10px;">
+                    <i class="fas fa-list"></i> Detailed Analysis
+                </button>
+                <button class="btn btn-success" onclick="showTopProducts()">
+                    <i class="fas fa-star"></i> Top Rated Products
+                </button>
+            `;
+            document.querySelector('#topProduct').parentNode.appendChild(detailButton);
+        }
+        
+        // Update sales chart
+        function updateSalesChart() {
+            const chartContainer = document.getElementById('salesChart');
+            chartContainer.innerHTML = '';
+            
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Generate data for the last 7 days based on actual orders
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const values = new Array(7).fill(0);
+            
+            // Get orders from the last 7 days
+            const now = new Date();
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            // Filter valid orders and handle potential data issues
+            const validOrders = appData.orders.filter(order => order.order_time && order.total_amount);
+            
+            validOrders.forEach(order => {
+                try {
+                    const orderDate = new Date(order.order_time);
+                    if (orderDate >= oneWeekAgo && orderDate <= now) {
+                        const dayIndex = orderDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                        // Convert to our array index (0 = Monday, 6 = Sunday)
+                        const arrayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+                        values[arrayIndex] += (order.total_amount || 0);
+                    }
+                } catch (error) {
+                    console.error('Error processing order date:', error);
+                }
+            });
+            
+            const maxValue = Math.max(...values);
+            
+            // Add chart title for better orientation
+            const chartTitle = document.createElement('div');
+            chartTitle.style.textAlign = 'center';
+            chartTitle.style.marginBottom = '10px';
+            chartTitle.style.fontWeight = 'bold';
+            chartTitle.style.color = '#333';
+            chartTitle.textContent = 'Last 7 Days Sales';
+            chartContainer.appendChild(chartTitle);
+            
+            // Create chart container
+            const chartBarsContainer = document.createElement('div');
+            chartBarsContainer.style.display = 'flex';
+            chartBarsContainer.style.alignItems = 'flex-end';
+            chartBarsContainer.style.gap = '5px';
+            chartBarsContainer.style.padding = '10px 0';
+            chartBarsContainer.style.height = '180px';
+            
+            days.forEach((day, index) => {
+                const barHeight = maxValue > 0 ? (values[index] / maxValue) * 100 : 0;
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.flex = '1';
+                bar.style.background = '#007bff';
+                bar.style.borderRadius = '3px 3px 0 0';
+                bar.style.position = 'relative';
+                bar.style.height = barHeight + '%';
+                
+                // Add value label
+                const valueLabel = document.createElement('div');
+                valueLabel.style.position = 'absolute';
+                valueLabel.style.top = '-20px';
+                valueLabel.style.left = '0';
+                valueLabel.style.right = '0';
+                valueLabel.style.textAlign = 'center';
+                valueLabel.style.fontSize = '0.7rem';
+                valueLabel.style.color = '#333';
+                valueLabel.textContent = '₹' + values[index].toFixed(0);
+                
+                // Add day label
+                const dayLabel = document.createElement('div');
+                dayLabel.className = 'chart-bar-label';
+                dayLabel.textContent = day;
+                
+                bar.appendChild(valueLabel);
+                bar.appendChild(dayLabel);
+                chartBarsContainer.appendChild(bar);
+            });
+            
+            chartContainer.appendChild(chartBarsContainer);
+            
+            // Add summary information
+            const totalSales = values.reduce((sum, value) => sum + value, 0);
+            const avgSales = totalSales / 7;
+            
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.marginTop = '20px';
+            summaryDiv.style.textAlign = 'center';
+            summaryDiv.style.fontSize = '0.9rem';
+            summaryDiv.style.color = '#666';
+            summaryDiv.innerHTML = `
+                <div>Total (7 days): <strong>₹${totalSales.toFixed(2)}</strong></div>
+                <div>Average per day: <strong>₹${avgSales.toFixed(2)}</strong></div>
+            `;
+            chartContainer.appendChild(summaryDiv);
+        }
+        
+        // Generate report
+        function generateReport(type) {
+            // Confirm report generation
+            const confirmGenerate = confirm(`Are you sure you want to generate the ${type} report? This will open a new window with the detailed report.`);
+            if (!confirmGenerate) {
+                return;
+            }
+            
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // In a real application, this would generate and download a detailed report
+            // For this demo, we'll show a more detailed alert with report information
+            
+            let reportInfo = '';
+            
+            if (type === 'sales') {
+                // Calculate sales statistics
+                const totalRevenue = appData.orders.reduce((total, order) => total + (order.total_amount || 0), 0);
+                const totalOrders = appData.orders.length;
+                const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                
+                // Calculate products sold
+                const productsSold = appData.orders.reduce((total, order) => {
+                    return total + order.items.reduce((itemTotal, item) => itemTotal + (item.quantity || 0), 0);
+                }, 0);
+                
+                // Calculate daily averages
+                const now = new Date();
+                const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
+                const recentOrders = appData.orders.filter(order => {
+                    try {
+                        return new Date(order.order_time) >= startDate;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+                
+                const recentRevenue = recentOrders.reduce((total, order) => total + (order.total_amount || 0), 0);
+                const dailyAverage = recentRevenue / 30;
+                
+                reportInfo = `Sales Report:\n\n` +
+                    `Total Revenue: ₹${totalRevenue.toFixed(2)}\n` +
+                    `Total Orders: ${totalOrders}\n` +
+                    `Products Sold: ${productsSold}\n` +
+                    `Average Order Value: ₹${avgOrderValue.toFixed(2)}\n` +
+                    `Total Products: ${appData.product_items.length}\n` +
+                    `Active Products: ${appData.product_items.filter(item => item.is_available).length}\n\n` +
+                    `Recent Performance (Last 30 Days):\n` +
+                    `Revenue: ₹${recentRevenue.toFixed(2)}\n` +
+                    `Daily Average: ₹${dailyAverage.toFixed(2)}`;
+            } else if (type === 'user') {
+                const totalUsers = appData.users.length;
+                const adminUsers = appData.users.filter(user => user.role === 'admin').length;
+                const customerUsers = totalUsers - adminUsers;
+                
+                // Calculate user spending stats with error handling
+                const userSpending = appData.users.map(user => {
+                    const userOrders = appData.orders.filter(order => order.user_id === user.user_id);
+                    return userOrders.reduce((total, order) => total + (order.total_amount || 0), 0);
+                });
+                
+                const totalSpending = userSpending.reduce((total, amount) => total + amount, 0);
+                const avgSpending = userSpending.length > 0 ? totalSpending / userSpending.length : 0;
+                
+                // Find top spending user
+                let topSpender = 'N/A';
+                let topSpenderAmount = 0;
+                if (userSpending.length > 0) {
+                    const maxSpendingIndex = userSpending.indexOf(Math.max(...userSpending));
+                    if (maxSpendingIndex >= 0 && maxSpendingIndex < appData.users.length) {
+                        topSpender = appData.users[maxSpendingIndex].username;
+                        topSpenderAmount = userSpending[maxSpendingIndex];
+                    }
+                }
+                
+                // Calculate user activity
+                const activeUsers = appData.users.filter(user => {
+                    return appData.orders.some(order => order.user_id === user.user_id);
+                }).length;
+                
+                const inactiveUsers = totalUsers - activeUsers;
+                
+                reportInfo = `User Report:\n\n` +
+                    `Total Users: ${totalUsers}\n` +
+                    `Admin Users: ${adminUsers}\n` +
+                    `Customer Users: ${customerUsers}\n` +
+                    `Active Users (with orders): ${activeUsers}\n` +
+                    `Inactive Users: ${inactiveUsers}\n\n` +
+                    `Financial Metrics:\n` +
+                    `Total Revenue: ₹${totalSpending.toFixed(2)}\n` +
+                    `Average Spending per User: ₹${avgSpending.toFixed(2)}\n` +
+                    `Top Spender: ${topSpender} (₹${topSpenderAmount.toFixed(2)})`;
+            }
+            
+            // Create a more detailed and formatted report
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${type.charAt(0).toUpperCase() + type.slice(1)} Report - Shopping ZONE</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #ff6b6b; }
+                        .report-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+                        .report-title { font-size: 1.2em; font-weight: bold; color: #007bff; margin-bottom: 10px; }
+                        .report-data { line-height: 1.6; }
+                        .highlight { background-color: #f0f8ff; padding: 2px 5px; border-radius: 3px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Shopping ZONE - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h1>
+                    <div class="report-section">
+                        <div class="report-title">Report Details</div>
+                        <div class="report-data"><pre>${reportInfo}</pre></div>
+                    </div>
+                    <div class="report-section">
+                        <div class="report-title">Report Generated</div>
+                        <div class="report-data">Date: ${new Date().toLocaleString()}</div>
+                    </div>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
+            reportWindow.focus();
+        }
+        
+        // Show product information in modal
+        function showProductAlert() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            const totalProducts = appData.product_items.length;
+            const activeProducts = appData.product_items.filter(item => item.is_available).length;
+            const inactiveProducts = totalProducts - activeProducts;
+            const avgRating = appData.product_items.length > 0 ? 
+                (appData.product_items.reduce((total, item) => total + (item.rating || 0), 0) / appData.product_items.length).toFixed(1) : 0;
+            
+            // Find highest rated product
+            let topProduct = 'N/A';
+            if (totalProducts > 0) {
+                const highestRated = appData.product_items.reduce((highest, current) => 
+                    (current.rating || 0) > (highest.rating || 0) ? current : highest);
+                topProduct = highestRated.name;
+            }
+            
+            // Create detailed content for modal
+            const content = `
+                <div class="detail-item">
+                    <span class="detail-label">Total Products:</span>
+                    <span class="detail-value">${totalProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Active Products:</span>
+                    <span class="detail-value">${activeProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Inactive Products:</span>
+                    <span class="detail-value">${inactiveProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Average Rating:</span>
+                    <span class="detail-value">${avgRating} stars</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Highest Rated Product:</span>
+                    <span class="detail-value">${topProduct}</span>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                    <p><strong>Note:</strong> This information is for administrative purposes only. Products cannot be modified from this interface.</p>
+                </div>
+            `;
+            
+            showModal('Product Overview', content);
+        }
+        
+        // Show user details in modal
+        function showUserDetails(user, allUsers) {
+            // Get user orders
+            const userOrders = appData.orders.filter(order => order.user_id === user.user_id);
+            
+            // Calculate user statistics
+            const totalSpent = userOrders.reduce((total, order) => total + (order.total_amount || 0), 0);
+            const totalItems = userOrders.reduce((total, order) => {
+                return total + order.items.reduce((itemTotal, item) => itemTotal + (item.quantity || 0), 0);
+            }, 0);
+            
+            // Find user rank
+            const userRank = allUsers.findIndex(u => u.user_id === user.user_id) + 1;
+            
+            // Format registration date
+            let registrationDate = 'Unknown';
+            if (user.created_at) {
+                try {
+                    registrationDate = new Date(user.created_at).toLocaleDateString();
+                } catch (e) {
+                    registrationDate = 'Invalid Date';
+                }
+            }
+            
+            // Create order history HTML
+            let orderHistoryHTML = '';
+            if (userOrders.length > 0) {
+                // Sort orders by date (newest first)
+                userOrders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+                
+                // Show last 5 orders
+                const recentOrders = userOrders.slice(0, 5);
+                
+                orderHistoryHTML = `
+                    <div class="order-list">
+                        <h3 style="margin-top: 20px; color: #007bff;">Recent Orders (${userOrders.length} total)</h3>
+                `;
+                
+                recentOrders.forEach(order => {
+                    // Format order date
+                    let orderDate = 'Unknown';
+                    if (order.order_time) {
+                        try {
+                            orderDate = new Date(order.order_time).toLocaleString();
+                        } catch (e) {
+                            orderDate = 'Invalid Date';
+                        }
+                    }
+                    
+                    orderHistoryHTML += `
+                        <div class="order-item-popup">
+                            <div><strong>Order #${order.order_id}</strong> - ${orderDate}</div>
+                            <div>Items: ${order.items.length} | Total: ₹${(order.total_amount || 0).toFixed(2)}</div>
+                            <div>Status: <span style="color: #28a745; font-weight: bold;">${order.order_status || 'Confirmed'}</span></div>
+                        </div>
+                    `;
+                });
+                
+                if (userOrders.length > 5) {
+                    orderHistoryHTML += `<div style="text-align: center; margin-top: 10px; color: #666;">And ${userOrders.length - 5} more orders...</div>`;
+                }
+                
+                orderHistoryHTML += `</div>`;
+            } else {
+                orderHistoryHTML = `<div style="text-align: center; margin-top: 20px; color: #666;">No orders found for this user.</div>`;
+            }
+            
+            // Create detailed content for modal
+            const content = `
+                <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value">${user.username}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${user.email}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Role:</span>
+                    <span class="detail-value">${user.role || 'customer'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Registration Date:</span>
+                    <span class="detail-value">${registrationDate}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Orders:</span>
+                    <span class="detail-value">${userOrders.length}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Items Purchased:</span>
+                    <span class="detail-value">${totalItems}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Spent:</span>
+                    <span class="detail-value">₹${totalSpent.toFixed(2)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Loyalty Level:</span>
+                    <span class="detail-value"><span class="loyalty-badge ${user.loyaltyClass}">${user.loyaltyLevel}</span></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Ranking:</span>
+                    <span class="detail-value">#${userRank} of ${allUsers.length} users</span>
+                </div>
+                ${orderHistoryHTML}
+            `;
+            
+            showModal(`User Details: ${user.username}`, content);
+        }
+        
+        // Show detailed product analysis in modal
+        function showProductDetails() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Calculate product statistics
+            const totalProducts = appData.product_items.length;
+            const activeProducts = appData.product_items.filter(item => item.is_available).length;
+            const inactiveProducts = totalProducts - activeProducts;
+            
+            // Calculate average rating
+            const totalRating = appData.product_items.reduce((total, item) => total + (item.rating || 0), 0);
+            const avgRating = totalProducts > 0 ? totalRating / totalProducts : 0;
+            
+            // Find highest and lowest rated products
+            let topProduct = 'N/A';
+            let lowestProduct = 'N/A';
+            if (totalProducts > 0) {
+                const highestRated = appData.product_items.reduce((highest, current) => 
+                    (current.rating || 0) > (highest.rating || 0) ? current : highest);
+                topProduct = `${highestRated.name} (${highestRated.rating || 0} stars)`;
+                
+                const lowestRated = appData.product_items.reduce((lowest, current) => 
+                    (current.rating || 0) < (lowest.rating || 10) ? current : lowest);
+                lowestProduct = `${lowestRated.name} (${lowestRated.rating || 0} stars)`;
+            }
+            
+            // Price statistics
+            const prices = appData.product_items.map(item => item.price || 0);
+            const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+            const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+            const avgPrice = prices.length > 0 ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 0;
+            
+            // Create detailed content for modal
+            const content = `
+                <div class="detail-item">
+                    <span class="detail-label">Total Products:</span>
+                    <span class="detail-value">${totalProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Active Products:</span>
+                    <span class="detail-value">${activeProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Inactive Products:</span>
+                    <span class="detail-value">${inactiveProducts}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Average Rating:</span>
+                    <span class="detail-value">${avgRating.toFixed(1)} stars</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Highest Rated Product:</span>
+                    <span class="detail-value">${topProduct}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Lowest Rated Product:</span>
+                    <span class="detail-value">${lowestProduct}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Price Range:</span>
+                    <span class="detail-value">₹${minPrice.toFixed(2)} - ₹${maxPrice.toFixed(2)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Average Price:</span>
+                    <span class="detail-value">₹${avgPrice.toFixed(2)}</span>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                    <p><strong>Note:</strong> This information is for administrative purposes only. Products cannot be modified from this interface.</p>
+                </div>
+            `;
+            
+            showModal('Product Analysis', content);
+        }
+        
+        // Show top rated products in modal
+        function showTopProducts() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Get top 10 rated products
+            const topProducts = [...appData.product_items]
+                .filter(item => item.rating)
+                .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                .slice(0, 10);
+            
+            // Create product list HTML
+            let productListHTML = '';
+            if (topProducts.length > 0) {
+                productListHTML = `
+                    <div style="margin-top: 15px;">
+                        <h3 style="color: #007bff;">Top 10 Rated Products</h3>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                `;
+                
+                topProducts.forEach((product, index) => {
+                    // Generate star rating HTML
+                    const starRating = generateStarRating(product.rating || 0);
+                    
+                    productListHTML += `
+                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>${index + 1}. ${product.name}</strong>
+                                    <div style="margin-top: 5px;">${starRating}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div>₹${(product.price || 0).toFixed(2)}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        ${product.is_available ? 'Available' : 'Inactive'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                productListHTML += `</div></div>`;
+            } else {
+                productListHTML = `<div style="text-align: center; margin-top: 20px; color: #666;">No products with ratings found.</div>`;
+            }
+            
+            // Create detailed content for modal
+            const content = `
+                <div class="detail-item">
+                    <span class="detail-label">Total Products:</span>
+                    <span class="detail-value">${appData.product_items.length}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Products with Ratings:</span>
+                    <span class="detail-value">${appData.product_items.filter(item => item.rating).length}</span>
+                </div>
+                ${productListHTML}
+            `;
+            
+            showModal('Top Rated Products', content);
+        }
+        
+        // Generate star rating HTML (utility function)
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            // Add full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add half star if needed
+            if (hasHalfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt" style="color: #ffc107;"></i>';
+            }
+            
+            // Add empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star" style="color: #ffc107;"></i>';
+            }
+            
+            // Add rating number
+            starsHTML += ` <span style="color: #666; font-size: 0.9rem;">${rating.toFixed(1)}</span>`;
+            
+            return starsHTML;
+        }
+        
+        // Show modal with content
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('myModal').style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Show detailed analytics in modal
+        function showAnalyticsDetails() {
+            // Ensure we're working with the latest data
+            DataHandler.init();
+            
+            // Calculate analytics statistics
+            const totalUsers = appData.users.length;
+            const totalOrders = appData.orders.length;
+            const totalRevenue = appData.orders.reduce((total, order) => total + (order.total_amount || 0), 0);
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            
+            // Calculate products sold
+            const productsSold = appData.orders.reduce((total, order) => {
+                return total + order.items.reduce((itemTotal, item) => itemTotal + (item.quantity || 0), 0);
+            }, 0);
+            
+            // Admin and customer users
+            const adminUsers = appData.users.filter(user => user.role === 'admin').length;
+            const customerUsers = totalUsers - adminUsers;
+            
+            // Active users (with orders)
+            const activeUsers = appData.users.filter(user => {
+                return appData.orders.some(order => order.user_id === user.user_id);
+            }).length;
+            const inactiveUsers = totalUsers - activeUsers;
+            
+            // Calculate daily averages (last 30 days)
+            const now = new Date();
+            const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const recentOrders = appData.orders.filter(order => {
+                try {
+                    return new Date(order.order_time) >= startDate;
+                } catch (e) {
+                    return false;
+                }
+            });
+            
+            const recentRevenue = recentOrders.reduce((total, order) => total + (order.total_amount || 0), 0);
+            const dailyAverage = recentRevenue / 30;
+            const recentOrdersCount = recentOrders.length;
+            
+            // Find top spending user
+            let topSpender = 'N/A';
+            let topSpenderAmount = 0;
+            const userSpending = appData.users.map(user => {
+                const userOrders = appData.orders.filter(order => order.user_id === user.user_id);
+                return {
+                    user: user,
+                    totalSpent: userOrders.reduce((total, order) => total + (order.total_amount || 0), 0)
+                };
+            });
+            
+            if (userSpending.length > 0) {
+                const topSpenderData = userSpending.reduce((max, current) => 
+                    current.totalSpent > max.totalSpent ? current : max);
+                topSpender = topSpenderData.user.username;
+                topSpenderAmount = topSpenderData.totalSpent;
+            }
+            
+            // Create detailed content for modal
+            const content = `
+                <div class="detail-item">
+                    <span class="detail-label">Total Users:</span>
+                    <span class="detail-value">${totalUsers}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Admin Users:</span>
+                    <span class="detail-value">${adminUsers}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Customer Users:</span>
+                    <span class="detail-value">${customerUsers}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Active Users:</span>
+                    <span class="detail-value">${activeUsers}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Inactive Users:</span>
+                    <span class="detail-value">${inactiveUsers}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Orders:</span>
+                    <span class="detail-value">${totalOrders}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Total Revenue:</span>
+                    <span class="detail-value">₹${totalRevenue.toFixed(2)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Average Order Value:</span>
+                    <span class="detail-value">₹${avgOrderValue.toFixed(2)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Products Sold:</span>
+                    <span class="detail-value">${productsSold}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Top Spender:</span>
+                    <span class="detail-value">${topSpender} (₹${topSpenderAmount.toFixed(2)})</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Recent Performance (30 days):</span>
+                    <span class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Revenue:</span>
+                    <span class="detail-value">₹${recentRevenue.toFixed(2)}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Orders:</span>
+                    <span class="detail-value">${recentOrdersCount}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" style="padding-left: 20px;">Daily Average:</span>
+                    <span class="detail-value">₹${dailyAverage.toFixed(2)}</span>
+                </div>
+            `;
+            
+            showModal('Detailed Analytics', content);
+        }
+    </script>
+    
+    <!-- Modal Structure -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Modal Title</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Modal content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-secondary-modal" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
