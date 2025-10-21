@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .confirmation-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 90%;
+            margin-top: 40px; /* Adjust for fixed navbar */
+        }
+
+        .confirmation-container h2 {
+            margin-top: 0;
+            font-size: 2em;
+            color: #333;
+        }
+
+        .confirmation-container h3 {
+            margin-bottom: 10px;
+            color: #27ae60;
+        }
+
+        .confirmation-container p {
+            font-size: 1.2em;
+            color: #444;
+        }
+
+        .confirmation-container a {
+            display: inline-block;
+            margin: 15px 10px 0;
+            padding: 10px 20px;
+            text-decoration: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .confirmation-container a:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .cart-link {
+            position: relative;
+            color: #f7fff7;
+            text-decoration: none;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Products</a>
+            <a href="cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="background-video">
+        <source src="assets/bg/bg5.webm" type="video/webm">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="confirmation-container">
+        <h2>Order Confirmation</h2>
+        <h3>Thank you for your purchase!</h3>
+        <p id="orderMessage">Your order has been processed successfully.</p>
+        <a href="user/orders.html">View Your Orders</a>
+        <a href="menu.html">Continue Shopping</a>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            if (!Session.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get order ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('order_id');
+            
+            if (!orderId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            updateCartCount();
+            
+            // Display order confirmation
+            document.getElementById('orderMessage').innerHTML = 
+                `Your order #${orderId} has been placed successfully.`;
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="user/orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="user/profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'user/orders.html';
+                ordersLink.textContent = 'Orders';
+                navLinks.appendChild(ordersLink);
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

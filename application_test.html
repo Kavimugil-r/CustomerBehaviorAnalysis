@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Functionality Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Application Functionality Test</h1>
+        <p>This page verifies that the main application functionality works correctly.</p>
+        
+        <div class="test-section">
+            <h2>Core Functionality Test</h2>
+            <button onclick="testCoreFunctionality()">Test Core Functionality</button>
+            <button onclick="clearAllData()">Clear All Data</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        // Clear all data
+        function clearAllData() {
+            localStorage.clear();
+            appData.cart = [];
+            appData.orders = [];
+            // Reset to default users
+            appData.users = [
+                {
+                    user_id: 1,
+                    username: "admin",
+                    email: "admin@customer.com",
+                    password_hash: "password",
+                    created_at: "2023-01-01 12:00:00"
+                },
+                {
+                    user_id: 2,
+                    username: "user1",
+                    email: "user1@customer.com",
+                    password_hash: "password",
+                    created_at: "2023-01-02 12:00:00"
+                }
+            ];
+            document.getElementById('testResults').innerHTML = '<div class="success">All data cleared and reset to defaults</div>';
+        }
+        
+        // Test core functionality
+        function testCoreFunctionality() {
+            const testResults = document.getElementById('testResults');
+            testResults.innerHTML = '';
+            
+            try {
+                // Test 1: Initialize data handler
+                testResults.innerHTML += '<h3>Test 1: Initializing Data Handler</h3>';
+                DataHandler.init();
+                testResults.innerHTML += '<div class="success">PASS: Data handler initialized</div>';
+                
+                // Test 2: Check default users
+                testResults.innerHTML += '<h3>Test 2: Checking Default Users</h3>';
+                if (appData.users && appData.users.length >= 2) {
+                    testResults.innerHTML += '<div class="success">PASS: Default users found</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: Default users not found</div>';
+                    return;
+                }
+                
+                // Test 3: User authentication
+                testResults.innerHTML += '<h3>Test 3: User Authentication</h3>';
+                const adminUser = DataHandler.getUserByUsername('admin');
+                if (adminUser) {
+                    const sessionResult = Session.start(adminUser);
+                    if (sessionResult) {
+                        testResults.innerHTML += '<div class="success">PASS: User authentication successful</div>';
+                    } else {
+                        testResults.innerHTML += '<div class="error">FAIL: Session creation failed</div>';
+                        return;
+                    }
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: Admin user not found</div>';
+                    return;
+                }
+                
+                // Test 4: Add item to cart
+                testResults.innerHTML += '<h3>Test 4: Adding Item to Cart</h3>';
+                const addToCartResult = DataHandler.addToCart(1, 1, 2);
+                if (addToCartResult) {
+                    testResults.innerHTML += '<div class="success">PASS: Item added to cart</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: Failed to add item to cart</div>';
+                    return;
+                }
+                
+                // Test 5: Check cart items
+                testResults.innerHTML += '<h3>Test 5: Checking Cart Items</h3>';
+                const cartItems = DataHandler.getCartItems(1);
+                if (cartItems && cartItems.length > 0) {
+                    testResults.innerHTML += '<div class="success">PASS: Cart items retrieved</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: No cart items found</div>';
+                    return;
+                }
+                
+                // Test 6: Create order
+                testResults.innerHTML += '<h3>Test 6: Creating Order</h3>';
+                const order = DataHandler.createOrder(1);
+                if (order) {
+                    testResults.innerHTML += '<div class="success">PASS: Order created successfully</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: Failed to create order</div>';
+                    return;
+                }
+                
+                // Test 7: Check order history
+                testResults.innerHTML += '<h3>Test 7: Checking Order History</h3>';
+                const userOrders = DataHandler.getUserOrders(1);
+                if (userOrders && userOrders.length > 0) {
+                    testResults.innerHTML += '<div class="success">PASS: Order history available</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: No order history found</div>';
+                    return;
+                }
+                
+                // Test 8: Data persistence
+                testResults.innerHTML += '<h3>Test 8: Testing Data Persistence</h3>';
+                // Reinitialize to simulate page reload
+                DataHandler.init();
+                const reloadedOrders = DataHandler.getUserOrders(1);
+                if (reloadedOrders && reloadedOrders.length > 0) {
+                    testResults.innerHTML += '<div class="success">PASS: Data persists across sessions</div>';
+                } else {
+                    testResults.innerHTML += '<div class="error">FAIL: Data not persisted</div>';
+                    return;
+                }
+                
+                testResults.innerHTML += '<h3>All Tests Completed</h3><div class="success">SUCCESS: All core functionality tests passed! The application is working correctly.</div>';
+                
+            } catch (error) {
+                testResults.innerHTML += `<div class="error">ERROR: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

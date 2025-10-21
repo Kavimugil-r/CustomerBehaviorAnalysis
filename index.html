@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping ZONE - Retail System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --dark: #292f36;
+            --light: #f7fff7;
+            --accent: #ff9f1c;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--light);
+            overflow-x: hidden;
+            background-color: var(--dark);
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            
+        }
+
+        .video-background .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(41, 47, 54, 0.7);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Animated Hero Section */
+        .hero {
+            text-align: center;
+            padding: 150px 20px 100px;
+            margin-bottom: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: var(--primary);
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite 1s;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent), var(--primary));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .btn:hover::before {
+            opacity: 1;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Animated Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 80px 0;
+            perspective: 1000px;
+        }
+        
+        .product-item {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--dark);
+            transform-style: preserve-3d;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .product-item:nth-child(1) { animation-delay: 0.1s; }
+        .product-item:nth-child(2) { animation-delay: 0.2s; }
+        .product-item:nth-child(3) { animation-delay: 0.3s; }
+        .product-item:nth-child(4) { animation-delay: 0.4s; }
+        .product-item:nth-child(5) { animation-delay: 0.5s; }
+        .product-item:nth-child(6) { animation-delay: 0.6s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .product-item:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .product-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .product-item-content {
+            padding: 25px;
+            position: relative;
+        }
+        
+        .product-item h4 {
+            margin: 0 0 10px;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        
+        .product-item .description {
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .product-item .price {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 1.3rem;
+            margin: 15px 0;
+            display: block;
+        }
+        
+        .product-item a {
+            display: inline-block;
+            margin-top: 10px;
+            background: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .product-item a:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* About Section with Animation */
+        .about-section {
+            background: rgba(255,255,255,0.95);
+            padding: 60px;
+            border-radius: 15px;
+            margin: 80px 0;
+            color: var(--dark);
+            transform-style: preserve-3d;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .about-section h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .about-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .about-section p {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 30px;
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(78, 205, 196, 0.2);
+        }
+        
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            background: rgba(78, 205, 196, 0.15);
+        }
+        
+        .feature i {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature:hover i {
+            transform: scale(1.2);
+            color: var(--primary);
+        }
+        
+        .feature h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature p {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        /* Floating Animation for Special Items */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.2rem;
+            }
+            
+            .about-section {
+                padding: 30px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: var(--light);
+        }
+        
+        .logout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: var(--primary);
+        }
+        
+        .register-link {
+            background: var(--secondary);
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Products</a>
+            <a href="cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <div class="video-background">
+        <video autoplay muted loop>
+            <source src="assets/bg/bg1.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+        <div class="overlay"></div>
+    </div>
+
+    <div class="container">
+        <section class="hero">
+            <h1 class="animate__animated animate__fadeInDown">Welcome to Shopping ZONE</h1>
+            <p class="animate__animated animate__fadeInUp">Discover great products in our store and order with just a few clicks</p>
+            <a href="menu.html" class="btn animate__animated animate__fadeInUp animate__delay-1s">
+                <i class="fas fa-utensils"></i> Explore Our Products
+            </a>
+        </section>
+
+        <h2 style="text-align: center; color: var(--light); margin-bottom: 30px; font-size: 2.5rem;" 
+            class="animate__animated animate__fadeIn">
+            Featured Products
+        </h2>
+
+        <div class="product-grid" id="featuredProductGrid">
+            <!-- Featured product items will be populated by JavaScript -->
+        </div>
+
+        <div style="text-align: center; margin: 50px 0;">
+            <a href="menu.html" class="btn" style="
+                display: inline-block;
+                padding: 15px 40px;
+                background: linear-gradient(45deg, var(--primary), var(--accent));
+                color: white;
+                text-decoration: none;
+                border-radius: 50px;
+                font-size: 1.2rem;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                animation: pulse 2s infinite;
+            ">
+                <i class="fas fa-utensils"></i> View All Products
+            </a>
+        </div>
+
+        <section class="about-section">
+            <h2>About This Project</h2>
+            <p>Shopping ZONE Retail System is a comprehensive web application developed as a showcase of modern web development techniques. This project demonstrates client-side development skills with HTML, CSS, and JavaScript, featuring a complete retail system with user authentication, shopping cart, and order processing.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-lock"></i>
+                    <h3>Secure Authentication</h3>
+                    <p>Password hashing and session management for secure user accounts</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Shopping Cart</h3>
+                    <p>Full cart functionality with quantity adjustment and checkout</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-database"></i>
+                    <h3>Database Driven</h3>
+                    <p>JavaScript-based data storage with proper relationships and validation</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Responsive Design</h3>
+                    <p>Works on all devices from mobile to desktop</p>
+                </div>
+            </div>
+        </section>
+
+        <div style="text-align: center; margin: 80px 0 40px;">
+            <h2 style="color: var(--light); font-size: 2rem; margin-bottom: 20px;">Ready to Shop?</h2>
+            <a href="menu.html" class="btn floating" style="
+                padding: 15px 40px;
+                font-size: 1.2rem;
+                background: linear-gradient(45deg, var(--secondary), var(--primary));
+            ">
+                <i class="fas fa-rocket"></i> Start Shopping Now
+            </a>
+        </div>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserInfo();
+            updateCartCount();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="user/orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="user/profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'user/orders.html';
+                ordersLink.textContent = 'Orders';
+                navLinks.appendChild(ordersLink);
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

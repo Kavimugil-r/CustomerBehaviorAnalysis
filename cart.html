@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .cart-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .cart-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .cart-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+        
+        .item-details {
+            flex-grow: 1;
+        }
+        
+        .item-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .item-price, .item-subtotal {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .quantity-form {
+            display: flex;
+            align-items: center;
+        }
+        
+        .quantity-input {
+            width: 60px;
+            padding: 5px;
+            margin-right: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .update-btn, .remove-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .update-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 5px 10px;
+        }
+        
+        .cart-summary {
+            text-align: right;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .checkout-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+        
+        .empty-cart a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .empty-cart a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .cart-link {
+            position: relative;
+            color: #f7fff7;
+            text-decoration: none;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Products</a>
+            <a href="cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="cart-container">
+        <h2 class="cart-header">Your Shopping Cart</h2>
+
+        <div id="messageContainer">
+            <!-- Messages will be displayed here -->
+        </div>
+
+        <div id="cartContent">
+            <!-- Cart content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            if (!Session.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            updateCartCount();
+            loadCartItems();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="user/orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="user/profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'user/orders.html';
+                ordersLink.textContent = 'Orders';
+                navLinks.appendChild(ordersLink);
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = 'index.html';
+        }
+        
+        // Load cart items
+        function loadCartItems() {
+            const session = Session.get();
+            const cartContent = document.getElementById('cartContent');
+            const cartItems = DataHandler.getCartItems(session.user_id);
+            const total = DataHandler.getCartTotal(session.user_id);
+            
+            console.log('Loading cart items for user:', session.user_id);
+            console.log('Cart items:', cartItems);
+            
+            if (cartItems.length === 0) {
+                cartContent.innerHTML = `
+                    <div class="empty-cart">
+                        <p>Your cart is empty. <a href="menu.html">Browse our products</a> to add items!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let cartHTML = '';
+            
+            cartItems.forEach(item => {
+                cartHTML += `
+                    <div class="cart-item">
+                        <img src="${item.image_url}" class="item-image">
+                        <div class="item-details">
+                            <h4 class="item-name">${item.name}</h4>
+                            <p class="item-price">Price: $${item.price.toFixed(2)}</p>
+                            <p class="item-subtotal">Subtotal: $${(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                        <form class="quantity-form" onsubmit="updateQuantity(event, ${item.cart_id}); return false;">
+                            <input type="hidden" name="cart_id" value="${item.cart_id}">
+                            <input type="number" name="quantity" value="${item.quantity}" min="1" class="quantity-input">
+                            <button type="submit" class="update-btn">Update</button>
+                            <a href="#" class="remove-btn" onclick="removeFromCart(${item.cart_id}); return false;">Remove</a>
+                        </form>
+                    </div>
+                `;
+            });
+            
+            cartHTML += `
+                <div class="cart-summary">
+                    <p class="total-price">Total: $${total.toFixed(2)}</p>
+                    <a href="checkout.html" class="checkout-btn">Proceed to Checkout</a>
+                </div>
+            `;
+            
+            cartContent.innerHTML = cartHTML;
+        }
+        
+        // Update quantity
+        function updateQuantity(event, cartId) {
+            event.preventDefault();
+            const session = Session.get();
+            const form = event.target;
+            const quantity = parseInt(form.querySelector('input[name="quantity"]').value);
+            
+            console.log('Updating quantity for cart item:', cartId, 'to:', quantity);
+            
+            if (DataHandler.updateCartQuantity(cartId, session.user_id, quantity)) {
+                showMessage('Cart updated!', 'success');
+                updateCartCount();
+                loadCartItems();
+            } else {
+                showMessage('Failed to update cart!', 'error');
+            }
+        }
+        
+        // Remove from cart
+        function removeFromCart(cartId) {
+            const session = Session.get();
+            
+            console.log('Removing cart item:', cartId);
+            
+            if (DataHandler.removeFromCart(cartId, session.user_id)) {
+                showMessage('Item removed from cart!', 'success');
+                updateCartCount();
+                loadCartItems();
+            } else {
+                showMessage('Failed to remove item!', 'error');
+            }
+        }
+        
+        // Show message function
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="alert ${type}">
+                    ${message}
+                </div>
+            `;
+            
+            // Hide message after 3 seconds
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

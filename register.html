@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .video-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .content-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .register-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form div {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #1e7e34;
+        }
+
+        .error {
+            color: #b30000;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-top: 20px;
+            color: #333;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Products</a>
+            <a href="cart.html">Cart</a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+    </nav>
+
+    <video class="video-bg" autoplay muted loop>
+        <source src="assets/bg/bg1.webm" type="video/webm">
+        Your browser does not support the video tag.
+    </video>
+
+    <div class="content-wrapper">
+        <div class="register-box">
+            <h2>Register</h2>
+
+            <div id="errorMessage" class="error" style="display: none;"></div>
+
+            <form id="registerForm">
+                <div>
+                    <label>Username:</label>
+                    <input type="text" name="username" id="username" required>
+                </div>
+                <div>
+                    <label>Email:</label>
+                    <input type="email" name="email" id="email" required>
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" id="password" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+
+            <p>Already have an account? <a href="login.html">Login here</a></p>
+        </div>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                // Simple validation
+                if (!username || !email || !password) {
+                    showError('All fields are required!');
+                    return;
+                }
+                
+                // Check if username already exists
+                if (DataHandler.getUserByUsername(username)) {
+                    showError('Username already exists!');
+                    return;
+                }
+                
+                // Check if email already exists
+                if (DataHandler.getUserByEmail(email)) {
+                    showError('Email already registered!');
+                    return;
+                }
+                
+                // Validate email format
+                if (!email.endsWith('@customer.com')) {
+                    showError('Email must end with @customer.com');
+                    return;
+                }
+                
+                // Create new user
+                const newUser = DataHandler.addUser({
+                    username: username,
+                    email: email,
+                    password_hash: password // In a real app, this would be properly hashed
+                });
+                
+                // Start session
+                Session.start(newUser);
+                
+                // Show success message and redirect
+                alert('Registration successful! Welcome to Shopping ZONE.');
+                window.location.href = 'index.html';
+            });
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

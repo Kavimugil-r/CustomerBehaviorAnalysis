@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .checkout-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        .order-section, .payment-section {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        
+        .order-item-details {
+            flex-grow: 1;
+        }
+        
+        .order-item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .order-item-price {
+            color: #666;
+        }
+        
+        .order-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-label {
+            font-weight: bold;
+        }
+        
+        .total-row {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .payment-form {
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .cart-link {
+            position: relative;
+            color: #f7fff7;
+            text-decoration: none;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Products</a>
+            <a href="cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="checkout-container">
+        <h2 class="checkout-header">Checkout</h2>
+
+        <div id="messageContainer">
+            <!-- Messages will be displayed here -->
+        </div>
+
+        <div class="checkout-grid" id="checkoutContent">
+            <!-- Checkout content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script src="assets/js/appData.js"></script>
+    <script src="assets/js/session.js"></script>
+    <script src="assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            if (!Session.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const session = Session.get();
+            const cartItems = DataHandler.getCartItems(session.user_id);
+            
+            // Check if cart is empty
+            if (cartItems.length === 0) {
+                window.location.href = 'menu.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            updateCartCount();
+            loadCheckoutContent();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="user/orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="user/profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'user/orders.html';
+                ordersLink.textContent = 'Orders';
+                navLinks.appendChild(ordersLink);
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = 'index.html';
+        }
+        
+        // Load checkout content
+        function loadCheckoutContent() {
+            const session = Session.get();
+            const cartItems = DataHandler.getCartItems(session.user_id);
+            const total = DataHandler.getCartTotal(session.user_id);
+            
+            let orderHTML = `
+                <div class="order-section">
+                    <h3 class="section-title">Your Order</h3>
+            `;
+            
+            cartItems.forEach(item => {
+                orderHTML += `
+                    <div class="order-item">
+                        <img src="${item.image_url}" class="order-item-image">
+                        <div class="order-item-details">
+                            <h4 class="order-item-name">${item.name}</h4>
+                            <p class="order-item-price">$${item.price.toFixed(2)} × ${item.quantity}</p>
+                            <p>Subtotal: $${(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            orderHTML += `
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span class="summary-label">Total Items:</span>
+                            <span>${cartItems.length}</span>
+                        </div>
+                        <div class="summary-row total-row">
+                            <span>Total:</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-section">
+                    <h3 class="section-title">Payment Information</h3>
+                    
+                    <form id="paymentForm" class="payment-form">
+                        <div class="form-group">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" name="card_number" class="form-input" placeholder="1234 5678 9012 3456" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Cardholder Name</label>
+                            <input type="text" name="card_name" class="form-input" placeholder="John Doe" required>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label">Expiry (MM/YY)</label>
+                                <input type="text" name="expiry" class="form-input" placeholder="MM/YY" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVV</label>
+                                <input type="text" name="cvv" class="form-input" placeholder="123" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Place Order</button>
+                    </form>
+                </div>
+            `;
+            
+            document.getElementById('checkoutContent').innerHTML = orderHTML;
+            
+            // Add event listener to payment form
+            document.getElementById('paymentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                placeOrder();
+            });
+        }
+        
+        // Place order
+        function placeOrder() {
+            const session = Session.get();
+            
+            // In a real application, you would process the payment here
+            // For this demo, we'll just create the order
+            
+            const order = DataHandler.createOrder(session.user_id);
+            
+            if (order) {
+                // Redirect to order confirmation page
+                window.location.href = `order_confirmation.html?order_id=${order.order_id}`;
+            } else {
+                showMessage('Checkout failed. Please try again.', 'error');
+            }
+        }
+        
+        // Show message function
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="${type}">
+                    ${message}
+                </div>
+            `;
+            
+            // Hide message after 5 seconds
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

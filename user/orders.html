@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Orders</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .orders-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .orders-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .order-details {
+            margin-bottom: 15px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .order-total {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            font-weight: bold;
+            text-align: right;
+        }
+        
+        .order-time {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            margin-top: 10px;
+        }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+        
+        .empty-orders a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .empty-orders a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .cart-link {
+            position: relative;
+            color: #f7fff7;
+            text-decoration: none;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="../menu.html">Products</a>
+            <a href="../cart.html" class="cart-link">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <!-- Orders link will be added dynamically for logged-in users only -->
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="../assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="orders-container">
+        <h2 class="orders-header">Your Order History</h2>
+
+        <div id="ordersContent">
+            <!-- Orders content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script src="../assets/js/appData.js"></script>
+    <script src="../assets/js/session.js"></script>
+    <script src="../assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            if (!Session.isLoggedIn()) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Update UI
+            updateUserInfo();
+            updateCartCount();
+            loadOrders();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.querySelector('.nav-links');
+            const session = Session.get();
+            
+            // Remove existing orders link if present
+            const existingOrdersLink = document.querySelector('a[href="orders.html"]');
+            if (existingOrdersLink) {
+                existingOrdersLink.remove();
+            }
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username}!</span>
+                    <a href="profile.html" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+                
+                // Add orders link for logged-in users
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'orders.html';
+                ordersLink.textContent = 'Orders';
+                navLinks.appendChild(ordersLink);
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="../login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="../register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const cartCount = document.getElementById('cartCount');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                const cartItems = DataHandler.getCartItems(session.user_id);
+                const totalCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalCount;
+            } else {
+                cartCount.textContent = '0';
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            updateUserInfo();
+            updateCartCount();
+            window.location.href = '../index.html';
+        }
+        
+        // Load orders
+        function loadOrders() {
+            const session = Session.get();
+            
+            // Re-initialize DataHandler to ensure we have the latest data from localStorage
+            DataHandler.init();
+            
+            const orders = DataHandler.getUserOrders(session.user_id);
+            const ordersContent = document.getElementById('ordersContent');
+            
+            if (orders.length === 0) {
+                ordersContent.innerHTML = `
+                    <div class="empty-orders">
+                        <p>You haven't placed any orders yet. <a href="../menu.html">Start shopping now!</a></p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let ordersHTML = '<div class="orders-grid">';
+            
+            // Sort orders by order_time (newest first)
+            orders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+            
+            orders.forEach(order => {
+                // Format order time
+                const orderTime = new Date(order.order_time).toLocaleString();
+                
+                // Calculate total items
+                const totalItems = order.items.reduce((total, item) => total + item.quantity, 0);
+                
+                ordersHTML += `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span class="order-id">Order #${order.order_id}</span>
+                            <span class="order-status status-confirmed">Confirmed</span>
+                        </div>
+                        <div class="order-details">
+                `;
+                
+                // Display first 3 items
+                const displayItems = order.items.slice(0, 3);
+                displayItems.forEach(item => {
+                    const productItem = DataHandler.getProductItemById(item.product_id);
+                    if (productItem) {
+                        ordersHTML += `
+                            <div class="order-item">
+                                <span>${productItem.name} × ${item.quantity}</span>
+                                <span>$${(item.item_price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // Show "and X more items" if there are more than 3 items
+                if (order.items.length > 3) {
+                    const remaining = order.items.length - 3;
+                    ordersHTML += `
+                        <div class="order-item">
+                            <span>and ${remaining} more item${remaining > 1 ? 's' : ''}</span>
+                        </div>
+                    `;
+                }
+                
+                ordersHTML += `
+                        </div>
+                        <div class="order-total">
+                            Total: $${order.total_amount.toFixed(2)} (${totalItems} item${totalItems > 1 ? 's' : ''})
+                        </div>
+                        <div class="order-time">
+                            ${orderTime}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            ordersHTML += '</div>';
+            ordersContent.innerHTML = ordersHTML;
+        }
+    </script>
+</body>
+</html>
