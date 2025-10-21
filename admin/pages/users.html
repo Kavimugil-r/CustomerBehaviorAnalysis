@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Segmentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 20px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: #666;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+        
+        .card-content {
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+        }
+        
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .user-table th, .user-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        /* Dark Mode Styles */
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .dashboard-container {
+            background-color: rgba(30, 30, 30, 0.9);
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .dashboard-card {
+            background: #2d2d2d;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .user-table th {
+            background-color: #3a3a3a;
+        }
+        
+        .dark-mode .user-table th, 
+        .dark-mode .user-table td {
+            border-bottom: 1px solid #444;
+        }
+        
+        .dark-mode .stat-item {
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .stat-value {
+            color: #4ecdc4;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        /* Popup Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin-top: 100px;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .user-table {
+                font-size: 0.8rem;
+            }
+            
+            .user-table th, .user-table td {
+                padding: 8px;
+            }
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #f7fff7;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+        
+        .theme-toggle:hover {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="../../index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="analytics.html">Analytics</a>
+            <a href="users.html">User Segmentation</a>
+            <a href="products.html">Products</a>
+            <a href="reports.html">Reports</a>
+            <a href="#" onclick="refreshData(); return false;">Refresh Data</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="../../assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="dashboard-container">
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb">
+            <a href="../dashboard.html">Admin Dashboard</a> / 
+            <span>User Segmentation</span>
+        </div>
+        
+        <h2 class="dashboard-header">User Segmentation</h2>
+
+        <!-- Search and Filter Section -->
+        <div class="filter-section">
+            <input type="text" id="userSearch" class="search-box" placeholder="Search users by name or email..." onkeyup="filterUsers()">
+            <select id="loyaltyFilter" class="filter-select" onchange="filterUsers()">
+                <option value="">All Loyalty Levels</option>
+                <option value="gold">Gold</option>
+                <option value="silver">Silver</option>
+                <option value="bronze">Bronze</option>
+            </select>
+            <select id="sortFilter" class="filter-select" onchange="filterUsers()">
+                <option value="name">Sort by Name</option>
+                <option value="spent">Sort by Total Spent</option>
+                <option value="orders">Sort by Orders</option>
+            </select>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- User Segmentation Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">User Segmentation</span>
+                    <i class="fas fa-users card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Total Users</span>
+                        <span class="stat-value" id="totalUsers">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Active Users (30 days)</span>
+                        <span class="stat-value" id="activeUsers">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Avg. Order Value</span>
+                        <span class="stat-value" id="avgOrderValue">₹0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Highest Spending User</span>
+                        <span class="stat-value" id="topUser">-</span>
+                    </div>
+                    
+                    <div style="margin-top: 20px; overflow-x: auto;">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Orders</th>
+                                    <th>Items</th>
+                                    <th>Total Spent</th>
+                                    <th>Loyalty</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userSegmentationTable">
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">User Details</h2>
+                <span class="close" onclick="closeModal('userModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="userModalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('userModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/appData.js"></script>
+    <script src="../../assets/js/session.js"></script>
+    <script src="../../assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in and is admin
+            const session = Session.get();
+            if (!session || session.role !== 'admin') {
+                window.location.href = '../../login.html';
+                return;
+            }
+            
+            // Apply saved theme
+            applySavedTheme();
+            
+            // Update UI
+            updateUserInfo();
+            loadUserData();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username} (Admin)!</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="../../login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="../../register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            window.location.href = '../../index.html';
+        }
+        
+        // Toggle dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Apply saved theme on page load
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+        
+        // Refresh user data
+        function refreshData() {
+            // Confirm refresh action
+            const confirmRefresh = confirm('Are you sure you want to refresh user data? This will reload the latest information from storage.');
+            if (!confirmRefresh) {
+                return;
+            }
+            
+            // Show loading message
+            const refreshLink = document.querySelector('a[onclick*="refreshData"]');
+            const originalText = refreshLink.innerHTML;
+            refreshLink.innerHTML = '<i class="fas fa-sync fa-spin"></i> Refreshing...';
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Reload data
+            loadUserData();
+            
+            // Restore refresh link text after a short delay
+            setTimeout(() => {
+                refreshLink.innerHTML = originalText;
+            }, 1000);
+        }
+        
+        // Load user data
+        function loadUserData() {
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Get all data
+            const users = DataHandler.getUsers();
+            const orders = DataHandler.getOrders();
+            
+            // Calculate user statistics
+            let totalUsers = 0;
+            let activeUsers = 0;
+            let totalRevenue = 0;
+            let totalOrders = 0;
+            let topUser = '-';
+            
+            // Process user data
+            const userData = users.map(user => {
+                // Get user orders
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                
+                // Calculate statistics for this user
+                const orderCount = userOrders.length;
+                let itemsCount = 0;
+                let totalSpent = 0;
+                
+                userOrders.forEach(order => {
+                    totalRevenue += order.total_amount;
+                    totalOrders += 1;
+                    order.items.forEach(item => {
+                        itemsCount += item.quantity;
+                        totalSpent += item.quantity * item.item_price;
+                    });
+                });
+                
+                // Determine loyalty level
+                let loyaltyLevel = 'bronze';
+                let loyaltyClass = 'loyalty-bronze';
+                
+                if (totalSpent >= 500) {
+                    loyaltyLevel = 'gold';
+                    loyaltyClass = 'loyalty-gold';
+                } else if (totalSpent >= 200) {
+                    loyaltyLevel = 'silver';
+                    loyaltyClass = 'loyalty-silver';
+                }
+                
+                // Check if user is active (ordered in last 30 days)
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const hasRecentOrder = userOrders.some(order => {
+                    const orderDate = new Date(order.order_time);
+                    return orderDate >= thirtyDaysAgo;
+                });
+                
+                if (hasRecentOrder) {
+                    activeUsers++;
+                }
+                
+                // Update top user if this user spent more
+                if (totalSpent > 0 && (topUser === '-' || totalSpent > parseFloat(document.getElementById('topUser')?.textContent?.replace('₹', '') || 0))) {
+                    topUser = user.username + ' (₹' + totalSpent.toFixed(2) + ')';
+                }
+                
+                return {
+                    user_id: user.user_id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role || 'customer',
+                    orderCount: orderCount,
+                    itemsCount: itemsCount,
+                    totalSpent: totalSpent,
+                    loyaltyLevel: loyaltyLevel,
+                    loyaltyClass: loyaltyClass,
+                    isActive: hasRecentOrder
+                };
+            });
+            
+            totalUsers = users.length;
+            
+            // Update summary statistics
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            document.getElementById('avgOrderValue').textContent = '₹' + avgOrderValue.toFixed(2);
+            
+            document.getElementById('topUser').textContent = topUser;
+            
+            // Display user data in table
+            displayUsers(userData);
+        }
+        
+        // Display users in table
+        function displayUsers(userData) {
+            const tableBody = document.getElementById('userSegmentationTable');
+            tableBody.innerHTML = '';
+            
+            userData.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span class="loyalty-badge ${user.role === 'admin' ? 'loyalty-gold' : 'loyalty-bronze'}">${user.role}</span></td>
+                    <td>${user.orderCount}</td>
+                    <td>${user.itemsCount}</td>
+                    <td>₹${user.totalSpent.toFixed(2)}</td>
+                    <td><span class="loyalty-badge ${user.loyaltyClass}">${user.loyaltyLevel.charAt(0).toUpperCase() + user.loyaltyLevel.slice(1)}</span></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="showUserDetails('${user.user_id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Filter users based on search and filter criteria
+        function filterUsers() {
+            const searchInput = document.getElementById('userSearch').value.toLowerCase();
+            const loyaltyFilter = document.getElementById('loyaltyFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Get all data
+            const users = DataHandler.getUsers();
+            const orders = DataHandler.getOrders();
+            
+            // Process user data
+            let userData = users.map(user => {
+                // Get user orders
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                
+                // Calculate statistics for this user
+                const orderCount = userOrders.length;
+                let itemsCount = 0;
+                let totalSpent = 0;
+                
+                userOrders.forEach(order => {
+                    order.items.forEach(item => {
+                        itemsCount += item.quantity;
+                        totalSpent += item.quantity * item.item_price;
+                    });
+                });
+                
+                // Determine loyalty level
+                let loyaltyLevel = 'bronze';
+                let loyaltyClass = 'loyalty-bronze';
+                
+                if (totalSpent >= 500) {
+                    loyaltyLevel = 'gold';
+                    loyaltyClass = 'loyalty-gold';
+                } else if (totalSpent >= 200) {
+                    loyaltyLevel = 'silver';
+                    loyaltyClass = 'loyalty-silver';
+                }
+                
+                return {
+                    user_id: user.user_id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role || 'customer',
+                    orderCount: orderCount,
+                    itemsCount: itemsCount,
+                    totalSpent: totalSpent,
+                    loyaltyLevel: loyaltyLevel,
+                    loyaltyClass: loyaltyClass
+                };
+            });
+            
+            // Apply search filter
+            if (searchInput) {
+                userData = userData.filter(user => 
+                    user.username.toLowerCase().includes(searchInput) || 
+                    user.email.toLowerCase().includes(searchInput)
+                );
+            }
+            
+            // Apply loyalty filter
+            if (loyaltyFilter) {
+                userData = userData.filter(user => user.loyaltyLevel === loyaltyFilter);
+            }
+            
+            // Apply sorting
+            switch (sortFilter) {
+                case 'spent':
+                    userData.sort((a, b) => b.totalSpent - a.totalSpent);
+                    break;
+                case 'orders':
+                    userData.sort((a, b) => b.orderCount - a.orderCount);
+                    break;
+                case 'name':
+                default:
+                    userData.sort((a, b) => a.username.localeCompare(b.username));
+                    break;
+            }
+            
+            // Display filtered and sorted data
+            displayUsers(userData);
+        }
+        
+        // Show user details modal
+        function showUserDetails(userId) {
+            const modal = document.getElementById('userModal');
+            const modalBody = document.getElementById('userModalBody');
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Get user and orders
+            const user = DataHandler.getUserById(userId);
+            const orders = DataHandler.getUserOrders(userId);
+            
+            if (!user) {
+                modalBody.innerHTML = '<p>User not found.</p>';
+                modal.style.display = 'block';
+                return;
+            }
+            
+            // Calculate user statistics
+            let totalSpent = 0;
+            let totalItems = 0;
+            let avgOrderValue = 0;
+            
+            orders.forEach(order => {
+                totalSpent += order.total_amount;
+                order.items.forEach(item => {
+                    totalItems += item.quantity;
+                });
+            });
+            
+            if (orders.length > 0) {
+                avgOrderValue = totalSpent / orders.length;
+            }
+            
+            // Determine loyalty level
+            let loyaltyLevel = 'Bronze';
+            if (totalSpent >= 500) {
+                loyaltyLevel = 'Gold';
+            } else if (totalSpent >= 200) {
+                loyaltyLevel = 'Silver';
+            }
+            
+            // Generate modal content
+            let content = `
+                <h3>User Information</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Username:</strong> ${user.username}
+                    </div>
+                    <div>
+                        <strong>Email:</strong> ${user.email}
+                    </div>
+                    <div>
+                        <strong>Role:</strong> ${user.role || 'customer'}
+                    </div>
+                    <div>
+                        <strong>Member Since:</strong> ${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                    </div>
+                </div>
+                
+                <h3>Order Statistics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Total Orders:</strong> ${orders.length}
+                    </div>
+                    <div>
+                        <strong>Total Items Purchased:</strong> ${totalItems}
+                    </div>
+                    <div>
+                        <strong>Total Spent:</strong> ₹${totalSpent.toFixed(2)}
+                    </div>
+                    <div>
+                        <strong>Average Order Value:</strong> ₹${avgOrderValue.toFixed(2)}
+                    </div>
+                    <div>
+                        <strong>Loyalty Level:</strong> <span class="loyalty-badge loyalty-${loyaltyLevel.toLowerCase()}">${loyaltyLevel}</span>
+                    </div>
+                </div>
+                
+                <h3>Recent Orders</h3>
+            `;
+            
+            if (orders.length === 0) {
+                content += '<p>No orders found for this user.</p>';
+            } else {
+                // Sort orders by date (newest first)
+                orders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+                
+                // Show last 5 orders
+                const recentOrders = orders.slice(0, 5);
+                
+                content += `
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Order ID</th>
+                                    <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;">Date</th>
+                                    <th style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">Items</th>
+                                    <th style="text-align: right; padding: 8px; border-bottom: 1px solid #ddd;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                recentOrders.forEach(order => {
+                    const orderDate = new Date(order.order_time);
+                    const itemsCount = order.items.reduce((total, item) => total + item.quantity, 0);
+                    
+                    content += `
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">#${order.order_id}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #eee;">${orderDate.toLocaleDateString()}</td>
+                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #eee;">${itemsCount}</td>
+                            <td style="text-align: right; padding: 8px; border-bottom: 1px solid #eee;">₹${order.total_amount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                content += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

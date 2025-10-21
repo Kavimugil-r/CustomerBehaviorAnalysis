@@ -361,21 +361,23 @@
             if (session && session.logged_in) {
                 userInfo.innerHTML = `
                     <span>Welcome, ${session.username}!</span>
-                    <a href="${session.role === 'admin' ? 'admin/dashboard.html' : 'user/dashboard.html'}" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <a href="${session.role === 'admin' ? 'admin/dashboard.html' : 'user/profile.html'}" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
                     </a>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
                 
-                // Add orders link for logged-in users
-                const ordersLink = document.createElement('a');
-                ordersLink.href = 'user/orders.html';
-                ordersLink.textContent = 'Orders';
-                // Make sure we don't add duplicate links
-                if (!document.querySelector('a[href="user/orders.html"]')) {
-                    navLinks.appendChild(ordersLink);
+                // Add orders link only for customer users, not admins
+                if (session.role !== 'admin') {
+                    const ordersLink = document.createElement('a');
+                    ordersLink.href = 'user/orders.html';
+                    ordersLink.textContent = 'Orders';
+                    // Make sure we don't add duplicate links
+                    if (!document.querySelector('a[href="user/orders.html"]')) {
+                        navLinks.appendChild(ordersLink);
+                    }
                 }
             } else {
                 userInfo.innerHTML = `

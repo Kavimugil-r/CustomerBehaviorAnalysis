@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            object-fit: cover;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-top: 80px; /* Add space for fixed navbar */
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .breadcrumb {
+            margin-bottom: 20px;
+            padding: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb span {
+            color: #666;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+        
+        .card-content {
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .report-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .report-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .report-content {
+            margin-top: 15px;
+        }
+        
+        .chart-container {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 10px 0;
+            margin-top: 15px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: #007bff;
+            border-radius: 3px 3px 0 0;
+            position: relative;
+        }
+        
+        .chart-bar-label {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .report-table th, .report-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .report-table th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        
+        /* Dark Mode Styles */
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .dashboard-container {
+            background-color: rgba(30, 30, 30, 0.9);
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .dashboard-card {
+            background: #2d2d2d;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .report-section {
+            background: #3a3a3a;
+        }
+        
+        .dark-mode .report-table th {
+            background-color: #3a3a3a;
+        }
+        
+        .dark-mode .report-table th, 
+        .dark-mode .report-table td {
+            border-bottom: 1px solid #444;
+        }
+        
+        .dark-mode .stat-item {
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .stat-value {
+            color: #4ecdc4;
+        }
+        
+        /* Navigation Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(41, 47, 54, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #f7fff7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6b6b;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info span {
+            color: #f7fff7;
+        }
+        
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #ff5252;
+        }
+        
+        .login-register {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .login-register a {
+            color: #f7fff7;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .login-link {
+            background: #ff6b6b;
+        }
+        
+        .register-link {
+            background: #4ecdc4;
+        }
+        
+        .login-register a:hover {
+            opacity: 0.9;
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #f7fff7;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+        
+        .theme-toggle:hover {
+            color: #ff6b6b;
+        }
+        
+        /* Popup Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 10px 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin-top: 100px;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="../../index.html" class="logo">Shopping ZONE</a>
+        <div class="nav-links">
+            <a href="../../index.html">Home</a>
+            <a href="analytics.html">Analytics</a>
+            <a href="users.html">User Segmentation</a>
+            <a href="products.html">Products</a>
+            <a href="reports.html">Reports</a>
+            <a href="#" onclick="refreshData(); return false;">Refresh Data</a>
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- User info will be populated by JavaScript -->
+        </div>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+
+    <video autoplay muted loop class="video-background">
+        <source src="../../assets/bg/bg5.webm" type="video/webm">
+    </video>
+
+    <div class="dashboard-container">
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb">
+            <a href="../dashboard.html">Admin Dashboard</a> / 
+            <span>Reports</span>
+        </div>
+        
+        <h2 class="dashboard-header">Reports</h2>
+
+        <div class="dashboard-grid">
+            <!-- Reports Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Reports</span>
+                    <i class="fas fa-file-alt card-icon"></i>
+                </div>
+                <div class="card-content">
+                    <div class="stat-item">
+                        <span>Sales Report</span>
+                        <span class="stat-value">Monthly</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>User Activity</span>
+                        <span class="stat-value">Weekly</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Product Performance</span>
+                        <span class="stat-value">Daily</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Inventory Status</span>
+                        <span class="stat-value">Real-time</span>
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button class="btn btn-primary" onclick="generateReport('sales')">
+                        <i class="fas fa-download"></i> Sales Report
+                    </button>
+                    <button class="btn btn-success" onclick="generateReport('user')">
+                        <i class="fas fa-download"></i> User Report
+                    </button>
+                    <button class="btn btn-warning" onclick="generateReport('product')">
+                        <i class="fas fa-download"></i> Product Report
+                    </button>
+                    <button class="btn btn-info" onclick="generateReport('inventory')">
+                        <i class="fas fa-download"></i> Inventory Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Sections -->
+        <div class="report-section">
+            <div class="report-title">Sales Performance</div>
+            <div class="report-content">
+                <div class="stat-item">
+                    <span>This Month's Revenue</span>
+                    <span class="stat-value" id="monthlyRevenue">₹0.00</span>
+                </div>
+                <div class="stat-item">
+                    <span>Top Performing Product</span>
+                    <span class="stat-value" id="topProduct">-</span>
+                </div>
+                <div class="chart-container" id="salesChart">
+                    <!-- Chart will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-section">
+            <div class="report-title">User Engagement</div>
+            <div class="report-content">
+                <div class="stat-item">
+                    <span>Active Users (30 days)</span>
+                    <span class="stat-value" id="activeUsers">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>New Registrations</span>
+                    <span class="stat-value" id="newRegistrations">0</span>
+                </div>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userActivityTable">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="reportModalTitle">Report</h2>
+                <span class="close" onclick="closeModal('reportModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="reportModalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="downloadReport()">Download</button>
+                <button class="btn btn-secondary" onclick="closeModal('reportModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../assets/js/appData.js"></script>
+    <script src="../../assets/js/session.js"></script>
+    <script src="../../assets/js/dataHandler.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in and is admin
+            const session = Session.get();
+            if (!session || session.role !== 'admin') {
+                window.location.href = '../../login.html';
+                return;
+            }
+            
+            // Apply saved theme
+            applySavedTheme();
+            
+            // Update UI
+            updateUserInfo();
+            loadReportData();
+        });
+        
+        // Update user info in navigation
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const session = Session.get();
+            
+            if (session && session.logged_in) {
+                userInfo.innerHTML = `
+                    <span>Welcome, ${session.username} (Admin)!</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            } else {
+                userInfo.innerHTML = `
+                    <div class="login-register">
+                        <a href="../../login.html" class="login-link">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="../../register.html" class="register-link">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            Session.destroy();
+            window.location.href = '../../index.html';
+        }
+        
+        // Toggle dark mode
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        // Apply saved theme on page load
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        }
+        
+        // Refresh report data
+        function refreshData() {
+            // Confirm refresh action
+            const confirmRefresh = confirm('Are you sure you want to refresh report data? This will reload the latest information from storage.');
+            if (!confirmRefresh) {
+                return;
+            }
+            
+            // Show loading message
+            const refreshLink = document.querySelector('a[onclick*="refreshData"]');
+            const originalText = refreshLink.innerHTML;
+            refreshLink.innerHTML = '<i class="fas fa-sync fa-spin"></i> Refreshing...';
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Reload data
+            loadReportData();
+            
+            // Restore refresh link text after a short delay
+            setTimeout(() => {
+                refreshLink.innerHTML = originalText;
+            }, 1000);
+        }
+        
+        // Load report data
+        function loadReportData() {
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Get all data
+            const users = DataHandler.getUsers();
+            const orders = DataHandler.getOrders();
+            const products = DataHandler.getProductItems();
+            
+            // Calculate sales data
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            let monthlyRevenue = 0;
+            let topProduct = '-';
+            let productSales = {};
+            
+            // Initialize product sales tracking
+            products.forEach(product => {
+                productSales[product.product_id] = {
+                    name: product.name,
+                    sales: 0,
+                    revenue: 0
+                };
+            });
+            
+            // Calculate this month's revenue and product sales
+            orders.forEach(order => {
+                const orderDate = new Date(order.order_time);
+                if (orderDate >= firstDayOfMonth) {
+                    monthlyRevenue += order.total_amount;
+                    
+                    // Track product sales
+                    order.items.forEach(item => {
+                        if (productSales[item.product_id]) {
+                            productSales[item.product_id].sales += item.quantity;
+                            productSales[item.product_id].revenue += item.quantity * item.item_price;
+                        }
+                    });
+                }
+            });
+            
+            // Find top performing product
+            let maxSales = 0;
+            Object.values(productSales).forEach(product => {
+                if (product.sales > maxSales) {
+                    maxSales = product.sales;
+                    topProduct = product.name;
+                }
+            });
+            
+            // Update UI
+            document.getElementById('monthlyRevenue').textContent = '₹' + monthlyRevenue.toFixed(2);
+            document.getElementById('topProduct').textContent = topProduct;
+            
+            // Generate sales chart
+            generateSalesChart(orders);
+            
+            // Calculate user engagement data
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            let activeUsers = 0;
+            let newRegistrations = 0;
+            
+            users.forEach(user => {
+                // Check if user is active (ordered in last 30 days)
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                const hasRecentOrder = userOrders.some(order => {
+                    const orderDate = new Date(order.order_time);
+                    return orderDate >= thirtyDaysAgo;
+                });
+                
+                if (hasRecentOrder) {
+                    activeUsers++;
+                }
+                
+                // Check if user is newly registered (within last week)
+                if (user.created_at) {
+                    const createdDate = new Date(user.created_at);
+                    if (createdDate >= oneWeekAgo) {
+                        newRegistrations++;
+                    }
+                }
+            });
+            
+            // Update UI
+            document.getElementById('activeUsers').textContent = activeUsers;
+            document.getElementById('newRegistrations').textContent = newRegistrations;
+            
+            // Display user activity table
+            displayUserActivity(users, orders);
+        }
+        
+        // Generate sales chart
+        function generateSalesChart(orders) {
+            const chartContainer = document.getElementById('salesChart');
+            chartContainer.innerHTML = '';
+            
+            // Group orders by date (last 7 days)
+            const salesData = {};
+            const today = new Date();
+            
+            // Initialize last 7 days
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                salesData[dateStr] = 0;
+            }
+            
+            // Aggregate sales data
+            orders.forEach(order => {
+                const orderDate = new Date(order.order_time);
+                const dateStr = orderDate.toISOString().split('T')[0];
+                if (salesData.hasOwnProperty(dateStr)) {
+                    salesData[dateStr] += order.total_amount;
+                }
+            });
+            
+            // Create chart bars
+            const maxSales = Math.max(...Object.values(salesData));
+            const dates = Object.keys(salesData);
+            
+            dates.forEach(date => {
+                const sales = salesData[date];
+                const height = maxSales > 0 ? (sales / maxSales) * 100 : 0;
+                
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = height + '%';
+                bar.innerHTML = `<div class="chart-bar-label">₹${sales.toFixed(0)}</div>`;
+                
+                // Add tooltip
+                bar.title = `${date}: ₹${sales.toFixed(2)}`;
+                
+                chartContainer.appendChild(bar);
+            });
+        }
+        
+        // Display user activity table
+        function displayUserActivity(users, orders) {
+            const tableBody = document.getElementById('userActivityTable');
+            tableBody.innerHTML = '';
+            
+            // Process user data
+            const userData = users.map(user => {
+                // Get user orders
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                
+                // Calculate statistics for this user
+                const orderCount = userOrders.length;
+                let totalSpent = 0;
+                
+                userOrders.forEach(order => {
+                    totalSpent += order.total_amount;
+                });
+                
+                // Find last order date
+                let lastOrderDate = '-';
+                if (userOrders.length > 0) {
+                    // Sort orders by date (newest first)
+                    userOrders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+                    lastOrderDate = new Date(userOrders[0].order_time).toLocaleDateString();
+                }
+                
+                return {
+                    username: user.username,
+                    email: user.email,
+                    orderCount: orderCount,
+                    totalSpent: totalSpent,
+                    lastOrderDate: lastOrderDate
+                };
+            });
+            
+            // Sort by total spent (descending)
+            userData.sort((a, b) => b.totalSpent - a.totalSpent);
+            
+            // Display top 10 users
+            const topUsers = userData.slice(0, 10);
+            
+            topUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.orderCount}</td>
+                    <td>₹${user.totalSpent.toFixed(2)}</td>
+                    <td>${user.lastOrderDate}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Generate report
+        function generateReport(reportType) {
+            const modal = document.getElementById('reportModal');
+            const modalTitle = document.getElementById('reportModalTitle');
+            const modalBody = document.getElementById('reportModalBody');
+            
+            // Re-initialize data to ensure we have the latest from localStorage
+            DataHandler.init();
+            
+            // Get all data
+            const users = DataHandler.getUsers();
+            const orders = DataHandler.getOrders();
+            const products = DataHandler.getProductItems();
+            
+            let title = '';
+            let content = '';
+            
+            switch (reportType) {
+                case 'sales':
+                    title = 'Sales Report';
+                    content = generateSalesReport(users, orders, products);
+                    break;
+                case 'user':
+                    title = 'User Activity Report';
+                    content = generateUserReport(users, orders);
+                    break;
+                case 'product':
+                    title = 'Product Performance Report';
+                    content = generateProductReport(products, orders);
+                    break;
+                case 'inventory':
+                    title = 'Inventory Status Report';
+                    content = generateInventoryReport(products);
+                    break;
+                default:
+                    title = 'Report';
+                    content = '<p>Invalid report type.</p>';
+            }
+            
+            modalTitle.textContent = title;
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+        
+        // Generate sales report
+        function generateSalesReport(users, orders, products) {
+            // Calculate total sales data
+            let totalRevenue = 0;
+            let totalOrders = orders.length;
+            let totalItemsSold = 0;
+            
+            orders.forEach(order => {
+                totalRevenue += order.total_amount;
+                order.items.forEach(item => {
+                    totalItemsSold += item.quantity;
+                });
+            });
+            
+            // Calculate average order value
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            
+            // Calculate sales by date (last 30 days)
+            const salesByDate = {};
+            const today = new Date();
+            
+            // Initialize last 30 days
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                salesByDate[dateStr] = 0;
+            }
+            
+            // Aggregate sales data
+            orders.forEach(order => {
+                const orderDate = new Date(order.order_time);
+                const dateStr = orderDate.toISOString().split('T')[0];
+                if (salesByDate.hasOwnProperty(dateStr)) {
+                    salesByDate[dateStr] += order.total_amount;
+                }
+            });
+            
+            let content = `
+                <h3>Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Total Revenue:</strong> ₹${totalRevenue.toFixed(2)}
+                    </div>
+                    <div>
+                        <strong>Total Orders:</strong> ${totalOrders}
+                    </div>
+                    <div>
+                        <strong>Total Items Sold:</strong> ${totalItemsSold}
+                    </div>
+                    <div>
+                        <strong>Average Order Value:</strong> ₹${avgOrderValue.toFixed(2)}
+                    </div>
+                </div>
+                
+                <h3>Daily Sales (Last 30 Days)</h3>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th style="text-align: right;">Sales (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Add daily sales data
+            Object.keys(salesByDate).forEach(date => {
+                const sales = salesByDate[date];
+                content += `
+                    <tr>
+                        <td>${date}</td>
+                        <td style="text-align: right;">₹${sales.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            content += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        // Generate user report
+        function generateUserReport(users, orders) {
+            // Calculate user statistics
+            let totalUsers = users.length;
+            let activeUsers = 0;
+            let totalRevenue = 0;
+            
+            // Calculate active users (ordered in last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            users.forEach(user => {
+                // Check if user is active (ordered in last 30 days)
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                const hasRecentOrder = userOrders.some(order => {
+                    const orderDate = new Date(order.order_time);
+                    return orderDate >= thirtyDaysAgo;
+                });
+                
+                if (hasRecentOrder) {
+                    activeUsers++;
+                }
+            });
+            
+            // Calculate total revenue
+            orders.forEach(order => {
+                totalRevenue += order.total_amount;
+            });
+            
+            // Process user data for table
+            const userData = users.map(user => {
+                // Get user orders
+                const userOrders = orders.filter(order => order.user_id === user.user_id);
+                
+                // Calculate statistics for this user
+                const orderCount = userOrders.length;
+                let totalSpent = 0;
+                let itemsCount = 0;
+                
+                userOrders.forEach(order => {
+                    totalSpent += order.total_amount;
+                    order.items.forEach(item => {
+                        itemsCount += item.quantity;
+                    });
+                });
+                
+                // Find last order date
+                let lastOrderDate = '-';
+                if (userOrders.length > 0) {
+                    // Sort orders by date (newest first)
+                    userOrders.sort((a, b) => new Date(b.order_time) - new Date(a.order_time));
+                    lastOrderDate = new Date(userOrders[0].order_time).toLocaleDateString();
+                }
+                
+                return {
+                    username: user.username,
+                    email: user.email,
+                    role: user.role || 'customer',
+                    orderCount: orderCount,
+                    itemsCount: itemsCount,
+                    totalSpent: totalSpent,
+                    lastOrderDate: lastOrderDate
+                };
+            });
+            
+            // Sort by total spent (descending)
+            userData.sort((a, b) => b.totalSpent - a.totalSpent);
+            
+            let content = `
+                <h3>Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Total Users:</strong> ${totalUsers}
+                    </div>
+                    <div>
+                        <strong>Active Users (30 days):</strong> ${activeUsers}
+                    </div>
+                    <div>
+                        <strong>User Conversion Rate:</strong> ${(totalUsers > 0 ? (activeUsers / totalUsers * 100).toFixed(2) : 0)}%
+                    </div>
+                    <div>
+                        <strong>Total Revenue Generated:</strong> ₹${totalRevenue.toFixed(2)}
+                    </div>
+                </div>
+                
+                <h3>User Activity</h3>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Orders</th>
+                                <th>Items</th>
+                                <th>Total Spent</th>
+                                <th>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            userData.forEach(user => {
+                content += `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${user.orderCount}</td>
+                        <td>${user.itemsCount}</td>
+                        <td>₹${user.totalSpent.toFixed(2)}</td>
+                        <td>${user.lastOrderDate}</td>
+                    </tr>
+                `;
+            });
+            
+            content += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        // Generate product report
+        function generateProductReport(products, orders) {
+            // Calculate product statistics
+            let totalProducts = products.length;
+            let totalItemsSold = 0;
+            let productSales = {};
+            
+            // Initialize product sales tracking
+            products.forEach(product => {
+                productSales[product.product_id] = {
+                    name: product.name,
+                    price: product.price,
+                    sales: 0,
+                    revenue: 0,
+                    rating: product.rating || 0
+                };
+            });
+            
+            // Calculate sales data
+            orders.forEach(order => {
+                order.items.forEach(item => {
+                    if (productSales[item.product_id]) {
+                        productSales[item.product_id].sales += item.quantity;
+                        productSales[item.product_id].revenue += item.quantity * item.item_price;
+                        totalItemsSold += item.quantity;
+                    }
+                });
+            });
+            
+            // Convert to array and sort by revenue
+            const productData = Object.values(productSales);
+            productData.sort((a, b) => b.revenue - a.revenue);
+            
+            let content = `
+                <h3>Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Total Products:</strong> ${totalProducts}
+                    </div>
+                    <div>
+                        <strong>Total Items Sold:</strong> ${totalItemsSold}
+                    </div>
+                </div>
+                
+                <h3>Product Performance</h3>
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Rating</th>
+                                <th>Units Sold</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            productData.forEach(product => {
+                content += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>₹${product.price.toFixed(2)}</td>
+                        <td>${product.rating.toFixed(1)}</td>
+                        <td>${product.sales}</td>
+                        <td>₹${product.revenue.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            content += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        // Generate inventory report
+        function generateInventoryReport(products) {
+            // In a real application, you would have actual inventory data
+            // For this demo, we'll simulate inventory data
+            
+            let content = `
+                <h3>Inventory Status</h3>
+                <p><em>Note: This is simulated data for demonstration purposes.</em></p>
+                
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Reorder Level</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Simulate inventory data
+            const categories = ['Electronics', 'Computers', 'Home', 'Beauty', 'Sports'];
+            
+            products.forEach((product, index) => {
+                // Simulate stock levels
+                const currentStock = Math.floor(Math.random() * 100) + 10;
+                const reorderLevel = Math.floor(Math.random() * 20) + 5;
+                const status = currentStock <= reorderLevel ? 'Low Stock' : 'In Stock';
+                const statusClass = currentStock <= reorderLevel ? 'style="color: #dc3545; font-weight: bold;"' : '';
+                
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                
+                content += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${category}</td>
+                        <td>${currentStock}</td>
+                        <td>${reorderLevel}</td>
+                        <td ${statusClass}>${status}</td>
+                    </tr>
+                `;
+            });
+            
+            content += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        // Download report
+        function downloadReport() {
+            const modalTitle = document.getElementById('reportModalTitle').textContent;
+            const modalBody = document.getElementById('reportModalBody');
+            
+            // Create a hidden link element
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            
+            // Create report content
+            const content = `
+                Shopping ZONE - ${modalTitle}
+                Generated on: ${new Date().toLocaleString()}
+                
+                ${modalBody.textContent}
+            `;
+            
+            // Create a Blob with the content
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            
+            // Set link attributes
+            link.href = url;
+            link.download = `${modalTitle.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+            
+            // Trigger download
+            link.click();
+            
+            // Clean up
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

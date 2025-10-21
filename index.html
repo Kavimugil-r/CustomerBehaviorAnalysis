@@ -622,26 +622,57 @@
                 existingOrdersLink.remove();
             }
             
+            // Remove existing cart link if present (for admin users)
+            const existingCartLink = document.querySelector('a[href="cart.html"]');
+            if (existingCartLink && session && session.role === 'admin') {
+                existingCartLink.remove();
+            }
+            
             if (session && session.logged_in) {
                 userInfo.innerHTML = `
                     <span>Welcome, ${session.username}!</span>
-                    <a href="${session.role === 'admin' ? 'admin/dashboard.html' : 'user/dashboard.html'}" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <a href="${session.role === 'admin' ? 'admin/dashboard.html' : 'user/profile.html'}" class="btn" style="padding: 8px 15px; font-size: 0.9rem; background: #4ecdc4; color: white; text-decoration: none; border-radius: 5px;">
+                        <i class="fas fa-user"></i> Profile
                     </a>
                     <button class="logout-btn" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 `;
                 
-                // Add orders link for logged-in users
-                const ordersLink = document.createElement('a');
-                ordersLink.href = 'user/orders.html';
-                ordersLink.textContent = 'Orders';
-                // Make sure we don't add duplicate links
-                if (!document.querySelector('a[href="user/orders.html"]')) {
-                    navLinks.appendChild(ordersLink);
+                // Add cart link only for customer users, not admins
+                if (session.role !== 'admin') {
+                    // Check if cart link already exists to avoid duplicates
+                    if (!document.querySelector('a[href="cart.html"]')) {
+                        const cartLink = document.createElement('a');
+                        cartLink.href = 'cart.html';
+                        cartLink.className = 'cart-link';
+                        cartLink.innerHTML = '<i class="fas fa-shopping-cart"></i> Cart <span class="cart-count" id="cartCount">0</span>';
+                        // Insert before the orders link (which is added below)
+                        navLinks.insertBefore(cartLink, navLinks.lastElementChild);
+                    }
+                }
+                
+                // Add orders link only for customer users, not admins
+                if (session.role !== 'admin') {
+                    const ordersLink = document.createElement('a');
+                    ordersLink.href = 'user/orders.html';
+                    ordersLink.textContent = 'Orders';
+                    // Make sure we don't add duplicate links
+                    if (!document.querySelector('a[href="user/orders.html"]')) {
+                        navLinks.appendChild(ordersLink);
+                    }
                 }
             } else {
+                // For non-logged in users, ensure cart link is present
+                if (!document.querySelector('a[href="cart.html"]')) {
+                    const cartLink = document.createElement('a');
+                    cartLink.href = 'cart.html';
+                    cartLink.className = 'cart-link';
+                    cartLink.innerHTML = '<i class="fas fa-shopping-cart"></i> Cart <span class="cart-count" id="cartCount">0</span>';
+                    // Insert before the last element (user-info)
+                    navLinks.insertBefore(cartLink, navLinks.lastElementChild);
+                }
+                
                 userInfo.innerHTML = `
                     <div class="login-register">
                         <a href="login.html" class="login-link">
